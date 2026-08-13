@@ -25,7 +25,7 @@ div[data-testid="stMetric"]{background:linear-gradient(180deg,rgba(20,42,62,.72)
 st.markdown('''
 <div class="re-header">
   <div class="re-title">🏙️ Trung tâm điều hành danh mục, phát triển &amp; đầu tư dự án bất động sản</div>
-  <div class="re-sub">Nền tảng quản trị đa dự án dành cho doanh nghiệp trong nước &nbsp;|&nbsp; Tác giả: <span class="re-author">Lê Hoàng Quân</span> &nbsp;|&nbsp; Phiên bản V10.1</div>
+  <div class="re-sub">Nền tảng quản trị đa dự án dành cho doanh nghiệp trong nước &nbsp;|&nbsp; Tác giả: <span class="re-author">Lê Hoàng Quân</span></div>
 </div>''', unsafe_allow_html=True)
 
 # Chỉ Việt hóa tại LỚP HIỂN THỊ. Không đổi tên cột/key trong dữ liệu nội bộ.
@@ -111,7 +111,7 @@ VN_TO_CANON={
 'Mã luồng':'Pipeline ID','Đã nhận nguồn':'Source received','Kiểm tra cấu trúc':'Schema check','Kiểm tra ánh xạ':'Mapping check','Kiểm tra chất lượng':'DQ check',
 'Đối chiếu':'Reconciliation','Phê duyệt':'Approval','Kiểm tra khóa kỳ':'Period lock check','Đã chuyển vào Master':'Promoted to Master','Lô gần nhất':'Latest batch',
 'Trạng thái SLA':'SLA status','Hành động tiếp theo':'Next action','Khoảng thiếu':'Gap','Điều kiện vận hành':'Điều kiện Go-Live','Phụ thuộc':'Dependency',
-'Trạng thái kiểm thử':'UAT status','Phê duyệt cuối':'Sign-off'
+'Trạng thái kiểm thử':'UAT status','Phê duyệt cuối':'Sign-off','Được điều phối tiền?':'Được Cash Pool?'
 }
 
 def _clean_loaded_sheet(df):
@@ -253,7 +253,7 @@ def show_vnfs(fs,title):
             dat.append([code,label]+[fs.loc[fs['Năm mô hình']==y,key].iloc[0] if key in fs.columns else 0 for y in years])
         return pd.DataFrame(dat,columns=['Mã số','Chỉ tiêu']+[f'Năm {y}' for y in years])
     st.subheader(title)
-    b1,b2,b3,b4=st.tabs(['B01-DN • CĐKT','B02-DN • KQKD','B03-DN • LCTT','B04-DN • Thuyết minh'])
+    b1,b2,b3,b4=st.tabs(['B01-DN • Bảng cân đối kế toán','B02-DN • Kết quả hoạt động kinh doanh','B03-DN • Lưu chuyển tiền tệ','B04-DN • Thuyết minh'])
     with b1:
         rows=[('110','Tiền và các khoản tương đương tiền','Tiền'),('131','Phải thu ngắn hạn của khách hàng','Phải thu KH'),('140','Hàng tồn kho/BĐS dở dang','Hàng tồn kho/BĐS dở dang'),('150','Tài sản ngắn hạn khác','TSNH khác'),('220','TSCĐ và BĐS đầu tư thuần','TSCĐ & BĐSĐT thuần'),('270','Tài sản dài hạn khác','TSDH khác'),('280','TỔNG CỘNG TÀI SẢN','Tổng tài sản'),('311','Phải trả người bán','Phải trả người bán'),('312','Người mua trả tiền trước','Người mua trả tiền trước'),('313','Thuế phải nộp','Thuế phải nộp'),('319','Phải trả khác','Phải trả khác'),('320','Vay ngắn hạn','Vay ngắn hạn'),('338','Vay dài hạn','Vay dài hạn'),('300','NỢ PHẢI TRẢ','Tổng nợ'),('400','VỐN CHỦ SỞ HỮU','Vốn CSH'),('440','TỔNG CỘNG NGUỒN VỐN','Tổng tài sản')]
         st.dataframe(stmt(rows),use_container_width=True,hide_index=True)
@@ -279,10 +279,10 @@ selected=None
 if mode=='Chi tiết một dự án':
     label={r['Mã dự án']:f"{r['Mã dự án']} – {r['Tên dự án']}" for _,r in portfolio.iterrows()}
     selected=st.sidebar.selectbox('Chọn dự án',project_codes,format_func=lambda x:label.get(x,x))
-st.sidebar.caption('V10.1 kế thừa toàn bộ lõi V10 và bổ sung lớp dữ liệu vận hành: nhập/ánh xạ, khu vực chờ, đối chiếu, nhật ký thay đổi, phân quyền, khóa kỳ và kiểm soát sẵn sàng vận hành.')
+st.sidebar.caption('Nền tảng tích hợp quản trị dự án, pháp lý, tài chính, dữ liệu vận hành, phân quyền, khóa kỳ và kiểm soát sẵn sàng vận hành.')
 
 # Scenario controls used in both levels
-with st.sidebar.expander('Kịch bản điều hành V10.1', expanded=False):
+with st.sidebar.expander('Kịch bản điều hành', expanded=False):
     price_change=st.slider('Giá bán',-30,20,0,1)/100
     absorption_change=st.slider('Tốc độ hấp thụ',-50,30,0,5)/100
     cost_change=st.slider('Chi phí đầu tư/xây dựng',-10,30,0,1)/100
@@ -301,7 +301,7 @@ if mode=='Toàn công ty / Danh mục':
     elimin=tab('31_Loai_tru_hop_nhat')
     waterfall=tab('34_Waterfall_Nguon_von')
     consdata=tab('35_BCTC_Hop_nhat_Data')
-    ceo_actions=tab('39_Quyet_dinh_TGD_V7')
+    ceo_actions=tab('39_Quyet_dinh_TGD')
 
     tabs=st.tabs([
         '01. Bàn điều hành tập đoàn','02. Pháp nhân & SPV','03. Ngân quỹ / Điều phối tiền',
@@ -337,7 +337,7 @@ if mode=='Toàn công ty / Danh mục':
         if len(consdata):
             plot=consdata[['Năm mô hình','Doanh thu hợp nhất','LNST hợp nhất']].copy()
             st.plotly_chart(px.bar(plot,x='Năm mô hình',y=['Doanh thu hợp nhất','LNST hợp nhất'],barmode='group',title='Doanh thu & LNST hợp nhất sau loại trừ'),use_container_width=True)
-        st.info('V10.1: SPV06/DA06 đang M&A tiếp tục được để ngoài BCTC hợp nhất và điều phối tiền cho đến khi hoàn tất giao dịch.')
+        st.info('SPV06/DA06 đang trong quá trình M&A nên tiếp tục được để ngoài BCTC hợp nhất và điều phối tiền cho đến khi hoàn tất giao dịch.')
 
     with tabs[1]:
         st.subheader('Cấu trúc công ty mẹ – SPV – dự án')
@@ -348,13 +348,14 @@ if mode=='Toàn công ty / Danh mục':
         st.subheader('Ngân quỹ & Điều phối tiền')
         st.dataframe(treasury,use_container_width=True,hide_index=True)
         if len(treasury):
-            eligible=treasury[treasury['Được điều phối tiền?'].astype(str)=='Có']
+            pool_col=next((c for c in ['Được Cash Pool?','Được điều phối tiền?'] if c in treasury.columns),None)
+            eligible=treasury[treasury[pool_col].astype(str)=='Có'] if pool_col else treasury.iloc[0:0]
             surplus=pd.to_numeric(eligible['Khả năng chuyển về CTM'],errors='coerce').sum()
             deficit=pd.to_numeric(eligible['Nhu cầu nhận từ CTM'],errors='coerce').sum()
             c1,c2,c3=st.columns(3)
             c1.metric('Thặng dư có thể điều phối',f'{surplus:,.0f} tỷ')
             c2.metric('Nhu cầu nhận vốn',f'{deficit:,.0f} tỷ')
-            c3.metric('Thiếu hụt sau pool',f'{max(0,deficit-surplus):,.0f} tỷ')
+            c3.metric('Thiếu hụt sau điều phối',f'{max(0,deficit-surplus):,.0f} tỷ')
         st.warning('Điều phối tiền chỉ là đề xuất điều hành. Không tự động chuyển tiền nếu hợp đồng tín dụng, cam kết tài chính, tài khoản kiểm soát hoặc mục đích sử dụng vốn bị hạn chế.')
 
     with tabs[3]:
@@ -370,14 +371,14 @@ if mode=='Toàn công ty / Danh mục':
     with tabs[4]:
         st.subheader('BCTC hợp nhất kế hoạch sau loại trừ nội bộ')
         b1=tab('36_B01_DN_Hop_nhat'); b2=tab('37_B02_DN_Hop_nhat'); b3=tab('38_B03_DN_Hop_nhat')
-        f1,f2,f3=st.tabs(['B01-DN • CĐKT hợp nhất','B02-DN • KQKD hợp nhất','B03-DN • LCTT hợp nhất'])
+        f1,f2,f3=st.tabs(['B01-DN • Bảng cân đối kế toán hợp nhất','B02-DN • Kết quả hoạt động kinh doanh hợp nhất','B03-DN • Lưu chuyển tiền tệ hợp nhất'])
         with f1: st.dataframe(b1,use_container_width=True,hide_index=True)
         with f2: st.dataframe(b2,use_container_width=True,hide_index=True)
         with f3: st.dataframe(b3,use_container_width=True,hide_index=True)
         if len(consdata):
             st.caption('Đối chiếu dữ liệu hợp nhất:')
             st.dataframe(consdata,use_container_width=True,hide_index=True)
-        st.info('V7 loại SPV06 khỏi hợp nhất; loại trừ doanh thu/chi phí, phải thu/phải trả và cho vay/vay nội bộ. Goodwill và bút toán hợp nhất thực tế cần nhập khi có dữ liệu.')
+        st.info('SPV06 hiện được loại khỏi hợp nhất; các khoản doanh thu/chi phí, phải thu/phải trả và cho vay/vay nội bộ được kiểm soát riêng. Lợi thế thương mại và bút toán hợp nhất thực tế cần nhập khi có dữ liệu.')
 
     with tabs[5]:
         st.subheader('Giao dịch nội bộ & bút toán loại trừ')
@@ -618,7 +619,7 @@ else:
     with tabs[0]:
         hs=health[health['Mã dự án'].astype(str)==selected]; score=safe_num(hs['Điểm sức khỏe'].iloc[0]) if len(hs) else 0
         gap=pm['Funding gap (tỷ)'].max(); peak=pm['Dư nợ cuối kỳ (tỷ)'].max(); ni=pm['LNST (tỷ)'].sum()
-        c1,c2,c3,c4,c5=st.columns(5); c1.metric('Sức khỏe',f'{score:.0f}/100'); c2.metric('Pháp lý',f"{safe_num(pr['Tiến độ pháp lý']):.0%}"); c3.metric('Peak debt',f'{peak:,.0f} tỷ'); c4.metric('Funding gap đỉnh',f'{gap:,.0f} tỷ'); c5.metric('LNST 60T',f'{ni:,.0f} tỷ')
+        c1,c2,c3,c4,c5=st.columns(5); c1.metric('Sức khỏe',f'{score:.0f}/100'); c2.metric('Pháp lý',f"{safe_num(pr['Tiến độ pháp lý']):.0%}"); c3.metric('Dư nợ đỉnh',f'{peak:,.0f} tỷ'); c4.metric('Khoảng thiếu vốn đỉnh',f'{gap:,.0f} tỷ'); c5.metric('LNST 60T',f'{ni:,.0f} tỷ')
         st.warning(f"Vấn đề chính: {pr['Vấn đề chính']}")
         if gap>0: st.error('LEGAL/FINANCE GATE: kịch bản hiện tại tạo funding gap; cần xử lý tiến độ, vốn hoặc chính sách bán hàng trước khi phê duyệt kế hoạch.')
     with tabs[1]:
@@ -630,7 +631,7 @@ else:
         st.caption('Bảng cân đối quản trị được theo dõi qua tiền, dư nợ và CIP/hàng tồn kho proxy trong mô hình; không thay thế BCTC kế toán.')
     with tabs[3]:
         delay=safe_num(a['Chậm pháp lý cơ sở (ngày)'])+delay_add; shift=int(np.ceil(delay/30)); extra_interest=safe_num(a['Dư nợ đầu kỳ (tỷ)'])*(safe_num(a['Lãi suất vay/năm'])+rate_change)/12*shift
-        c1,c2,c3,c4=st.columns(4); c1.metric('Chậm pháp lý',f'{delay:.0f} ngày'); c2.metric('Dịch mở bán',f'{shift} tháng'); c3.metric('Lãi vay tăng proxy',f'{extra_interest:,.0f} tỷ'); c4.metric('Funding gap đỉnh',f"{pm['Funding gap (tỷ)'].max():,.0f} tỷ")
+        c1,c2,c3,c4=st.columns(4); c1.metric('Chậm pháp lý',f'{delay:.0f} ngày'); c2.metric('Dịch mở bán',f'{shift} tháng'); c3.metric('Lãi vay tăng proxy',f'{extra_interest:,.0f} tỷ'); c4.metric('Khoảng thiếu vốn đỉnh',f"{pm['Funding gap (tỷ)'].max():,.0f} tỷ")
         st.markdown('**Chuỗi truyền dẫn:** Pháp lý → mở bán/ghi nhận → thu tiền → nhu cầu vay → lãi vay → LNST/funding gap.')
     with tabs[4]: st.dataframe(tab('02_Phap_ly').query('`Mã dự án` == @selected'),use_container_width=True,hide_index=True)
     with tabs[5]:
@@ -656,7 +657,7 @@ else:
         le=tab('50_Latest_Estimate'); le=le[le['Mã dự án'].astype(str)==selected] if len(le) else le
         st.dataframe(le,use_container_width=True,hide_index=True)
         if len(act):
-            st.plotly_chart(px.line(act,x='Tháng',y=['Doanh thu Actual (tỷ)','Thu tiền Actual (tỷ)','CAPEX Actual (tỷ)'],markers=True,title='Actual theo tháng'),use_container_width=True)
+            st.plotly_chart(px.line(act,x='Tháng',y=['Doanh thu Actual (tỷ)','Thu tiền Actual (tỷ)','CAPEX Actual (tỷ)'],markers=True,title='Thực tế theo tháng'),use_container_width=True)
             st.dataframe(act,use_container_width=True,hide_index=True)
     with tabs[15]:
         wc=tab('51_Working_Capital'); wc=wc[wc['Mã dự án'].astype(str)==selected] if len(wc) else wc
