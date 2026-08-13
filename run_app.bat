@@ -1,3 +1,4 @@
 @echo off
-streamlit run app.py
+cd /d %~dp0
+python -m streamlit run app.py
 pause

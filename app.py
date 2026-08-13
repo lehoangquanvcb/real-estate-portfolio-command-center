@@ -4,148 +4,122 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from pathlib import Path
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
-st.set_page_config(page_title='Trung tâm điều hành dự án bất động sản', page_icon='🏙️', layout='wide', initial_sidebar_state='expanded')
-st.markdown('''
+st.set_page_config(page_title="Trung tâm điều hành dự án bất động sản", page_icon="🏙️", layout="wide", initial_sidebar_state="expanded")
+
+# ============================= GIAO DIỆN =============================
+st.markdown(r"""
 <style>
-/* Khoảng đệm đủ lớn để toolbar Streamlit không che tiêu đề */
-.block-container{padding-top:4.15rem!important;padding-bottom:2rem!important;max-width:100%!important}
-[data-testid="stSidebar"]{background:linear-gradient(180deg,#0b1724 0%,#0e1d2b 100%);border-right:1px solid #26394b}
-.re-header{padding:0 0 14px 0;margin:0 0 8px 0;border-bottom:1px solid #26394b}
-.re-title{font-size:clamp(1.22rem,1.48vw,1.55rem)!important;font-weight:800;line-height:1.30;letter-spacing:.004em;margin:0;color:#f4f7fb;max-width:1180px}
-.re-sub{font-size:.84rem;color:#9fb0c0;margin-top:7px}.re-author{color:#69a8ff;font-weight:700}
-.small-note{font-size:.86rem;color:#9fb0c0}.redbox{border-left:4px solid #f04438;background:rgba(240,68,56,.10);padding:10px;border-radius:7px}.warnbox{border-left:4px solid #f79009;background:rgba(247,144,9,.10);padding:10px;border-radius:7px}.greenbox{border-left:4px solid #12b76a;background:rgba(18,183,106,.10);padding:10px;border-radius:7px}
-div[data-testid="stMetric"]{background:linear-gradient(180deg,rgba(20,42,62,.72),rgba(13,30,45,.72));border:1px solid #26394b;border-radius:10px;padding:9px 11px}div[data-testid="stMetricValue"]{font-size:1.18rem}
-[data-testid="stDataFrame"]{border:1px solid #26394b;border-radius:9px;overflow:hidden}
-.stTabs [data-baseweb="tab-list"]{gap:2px;border-bottom:1px solid #26394b;overflow-x:auto;scrollbar-width:thin}
-.stTabs [data-baseweb="tab"]{height:40px;padding:0 10px;font-size:.77rem;white-space:nowrap}.stTabs [aria-selected="true"]{background:#123a67;border-radius:7px 7px 0 0;color:#fff}
-@media(max-width:700px){.block-container{padding-top:3.65rem!important;padding-left:.65rem!important;padding-right:.65rem!important}.re-title{font-size:1.08rem!important}.re-sub{font-size:.73rem}.stTabs [data-baseweb="tab"]{padding:0 7px;font-size:.70rem}}
-</style>''', unsafe_allow_html=True)
+:root{--navy:#071523;--navy2:#0b1d2d;--panel:#0c2234;--line:#20384b;--blue:#2f80ed;--text:#edf4fb;--muted:#8fa5b8;--green:#20b26b;--amber:#e6a325;--red:#e65353}
+.block-container{padding-top:1.25rem!important;padding-bottom:2rem!important;max-width:100%!important;padding-left:1.0rem!important;padding-right:1.0rem!important}
+[data-testid="stAppViewContainer"]{background:#08111c}
+[data-testid="stHeader"]{background:rgba(8,17,28,.96);height:2.5rem}
+[data-testid="stSidebar"]{background:linear-gradient(180deg,#081927 0%,#0b2030 100%);border-right:1px solid #24394a}
+[data-testid="stSidebar"] .block-container{padding-top:.8rem!important}
+[data-testid="stSidebar"] hr{border-color:#20384b;margin:.55rem 0}
+[data-testid="stSidebar"] [role="radiogroup"] label{background:transparent;border-radius:7px;padding:.28rem .4rem;margin:.03rem 0}
+[data-testid="stSidebar"] [role="radiogroup"] label:hover{background:#102b40}
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked){background:#123e6a;color:white;border-left:3px solid #4b9cff}
+.topbar{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #20384b;padding:0 0 10px;margin:0 0 8px}
+.brand-title{font-size:1.08rem;font-weight:800;line-height:1.25;color:#f3f7fb;margin:0}.brand-sub{font-size:.76rem;color:#8fa5b8;margin-top:4px}.brand-author{color:#56a0ff;font-weight:700}
+.section-label{font-size:.68rem;color:#8ea3b4;text-transform:uppercase;letter-spacing:.06em;margin:.6rem 0 .25rem}
+.page-title{font-size:1.55rem;font-weight:800;color:#f5f7fa;margin:.7rem 0 .15rem}.page-sub{font-size:.82rem;color:#91a7b9;margin-bottom:.8rem}
+.kpi-card{background:linear-gradient(180deg,#0d2436 0%,#0b1d2d 100%);border:1px solid #254156;border-radius:8px;padding:12px 14px;min-height:82px}.kpi-label{font-size:.73rem;color:#9fb0c0}.kpi-value{font-size:1.22rem;font-weight:800;color:#f7fbff;margin-top:3px}.kpi-state{font-size:.68rem;margin-top:4px}.good{color:#43d17d}.warn{color:#f1b94b}.bad{color:#ff6b6b}
+div[data-testid="stMetric"]{background:linear-gradient(180deg,#0d2436,#0b1d2d);border:1px solid #254156;border-radius:8px;padding:9px 11px}div[data-testid="stMetricLabel"]{color:#9fb0c0}div[data-testid="stMetricValue"]{font-size:1.15rem}
+[data-testid="stDataFrame"]{border:1px solid #284154;border-radius:7px;overflow:hidden}.stTabs [data-baseweb="tab-list"]{gap:3px;border-bottom:1px solid #20384b}.stTabs [data-baseweb="tab"]{height:38px;padding:0 10px;font-size:.76rem;white-space:nowrap}.stTabs [aria-selected="true"]{background:#123e6a;border-radius:6px 6px 0 0;color:white}
+.notice{border:1px solid #254156;background:#0b2030;border-radius:8px;padding:10px 12px;color:#a9bac8;font-size:.78rem}
+.report-card{border:1px solid #254156;background:linear-gradient(180deg,#0c2132,#091a28);border-radius:9px;padding:13px;min-height:112px}.report-title{font-weight:800;color:#eef5fb}.report-desc{font-size:.76rem;color:#8fa5b8;margin-top:4px}.report-link{font-size:.76rem;color:#56a0ff;margin-top:9px}
+[data-testid="stFileUploader"]{background:#09131f;border-radius:8px}.stDownloadButton button,.stButton button{border-radius:6px}
+@media(max-width:900px){.block-container{padding-left:.55rem!important;padding-right:.55rem!important}.page-title{font-size:1.25rem}.brand-title{font-size:.98rem}}
+</style>
+""", unsafe_allow_html=True)
 
-st.markdown('''
-<div class="re-header">
-  <div class="re-title">🏙️ Trung tâm điều hành danh mục, phát triển &amp; đầu tư dự án bất động sản</div>
-  <div class="re-sub">Nền tảng quản trị đa dự án dành cho doanh nghiệp trong nước &nbsp;|&nbsp; Tác giả: <span class="re-author">Lê Hoàng Quân</span></div>
-</div>''', unsafe_allow_html=True)
+# ============================= DỮ LIỆU =============================
+DEFAULT=Path(__file__).with_name("Real_Estate_Project_Master.xlsx")
 
-# Chỉ Việt hóa tại LỚP HIỂN THỊ. Không đổi tên cột/key trong dữ liệu nội bộ.
-VI_COL={
-'Funding gap (tỷ)':'Khoảng thiếu vốn (tỷ)','Funding gap 12T (tỷ)':'Khoảng thiếu vốn 12T (tỷ)',
-'Budget DT FY':'Ngân sách doanh thu năm','LE DT FY':'Ước tính mới nhất doanh thu năm','LE Doanh thu FY':'Ước tính mới nhất doanh thu năm',
-'Var DT':'Chênh lệch doanh thu','LE CAPEX':'CAPEX ước tính mới nhất','Driver lớn nhất':'Yếu tố tác động lớn nhất',
-'Action':'Hành động','Owner':'Phụ trách','Reviewer':'Người rà soát','Deadline':'Hạn xử lý','Data domain':'Miền dữ liệu',
-'DQ Score':'Điểm chất lượng dữ liệu','SLA status':'Trạng thái SLA','Latest batch':'Lô dữ liệu gần nhất','Next action':'Hành động tiếp theo',
-'Source received':'Đã nhận nguồn','Schema check':'Kiểm tra cấu trúc','Mapping check':'Kiểm tra ánh xạ','DQ check':'Kiểm tra chất lượng',
-'Reconciliation':'Đối chiếu','Approval':'Phê duyệt','Period lock check':'Kiểm tra khóa kỳ','Promoted to Master':'Đã chuyển vào Master',
-'Audit required?':'Yêu cầu nhật ký?','Actual status':'Trạng thái số thực tế','UAT status':'Trạng thái kiểm thử',
-'Sign-off':'Phê duyệt cuối','Dependency':'Phụ thuộc','Readiness Score':'Điểm sẵn sàng','Go-Live Decision':'Quyết định vận hành',
-'Net Working Capital':'Vốn lưu động ròng','Net profit bridge proxy':'Cầu nối lợi nhuận ròng','Price impact':'Tác động giá bán',
-'Absorption/Timing impact':'Tác động hấp thụ/tiến độ','Legal delay impact':'Tác động chậm pháp lý','Execution residual':'Phần còn lại do triển khai',
-'Cost impact':'Tác động chi phí','Interest impact proxy':'Tác động lãi vay','Budget CAPEX':'CAPEX ngân sách','Budget DT':'Doanh thu ngân sách',
-'LE DT':'Doanh thu ước tính mới nhất','Status':'Trạng thái','Source':'Nguồn','Batch ID':'Mã lô','Record key':'Khóa bản ghi',
-'Control total nguồn':'Tổng kiểm soát nguồn','Control total Master':'Tổng kiểm soát Master','Data owner':'Chủ dữ liệu','Business owner':'Chủ nghiệp vụ',
-'Cut-off/Lock rule':'Quy tắc chốt/khóa','Actual DT YTD':'Doanh thu thực tế lũy kế','Actual CAPEX YTD':'CAPEX thực tế lũy kế',
-'Forecast DT còn lại':'Dự báo doanh thu còn lại','Forecast CAPEX còn lại':'Dự báo CAPEX còn lại','LE Doanh thu FY':'Doanh thu ước tính mới nhất năm',
-'LE CAPEX FY':'CAPEX ước tính mới nhất năm','Variance DT vs Budget':'Chênh lệch doanh thu so ngân sách','Variance CAPEX':'Chênh lệch CAPEX',
-'Budget DT FY':'Doanh thu ngân sách năm','Budget CAPEX FY':'CAPEX ngân sách năm','Actual status':'Trạng thái thực tế',
-'Doanh thu Budget YTD':'Doanh thu ngân sách lũy kế','Doanh thu Actual YTD':'Doanh thu thực tế lũy kế','Variance DT':'Chênh lệch doanh thu','Variance DT %':'Chênh lệch doanh thu (%)','CAPEX Budget YTD':'CAPEX ngân sách lũy kế','CAPEX Actual YTD':'CAPEX thực tế lũy kế','Variance CAPEX %':'Chênh lệch CAPEX (%)','Thu tiền Actual YTD':'Thu tiền thực tế lũy kế','Funding gap 12T (tỷ)':'Khoảng thiếu vốn 12T (tỷ)','Trigger reforecast':'Kích hoạt dự báo lại','Forecast DT 24T':'Dự báo doanh thu 24T','Forecast CAPEX 24T':'Dự báo CAPEX 24T','Forecast Funding Gap':'Dự báo khoảng thiếu vốn','Forecast LNST':'Dự báo LNST','Xác suất breach':'Xác suất vi phạm','Tháng dự kiến breach':'Thời gian dự kiến vi phạm','Risk score':'Điểm rủi ro','RAR score':'Điểm lợi nhuận điều chỉnh rủi ro','Return proxy':'Lợi nhuận kỳ vọng','Liquidity risk':'Rủi ro thanh khoản','Covenant risk':'Rủi ro cam kết tài chính','Sales risk':'Rủi ro bán hàng','Strategic score':'Điểm chiến lược','Vốn yêu cầu 12T':'Nhu cầu vốn 12T','Trạng thái LE':'Trạng thái ước tính','LNST LE proxy':'LNST ước tính','Data domain':'Miền dữ liệu','Trạng thái DQ':'Trạng thái chất lượng dữ liệu'
-}
-VI_VAL={'Execution':'Triển khai','Cost':'Chi phí','Legal':'Pháp lý','Price':'Giá bán','Timing/Other':'Tiến độ/Khác',
-'Green':'Đạt','Amber':'Cần hoàn thiện','NO-GO':'CHƯA VẬN HÀNH','GO':'SẴN SÀNG VẬN HÀNH','Promoted':'Đã chuyển vào Master',
-'Approval':'Phê duyệt','DQ check':'Kiểm tra chất lượng','Actual':'Thực tế','Budget':'Ngân sách','Rolling Forecast':'Dự báo cuốn chiếu',
-'Latest Estimate':'Ước tính mới nhất','Working Capital':'Vốn lưu động','Data Governance':'Quản trị dữ liệu','Audit Trail':'Nhật ký thay đổi'}
-_orig_dataframe=st.dataframe
-def _vi_df(data):
-    if not isinstance(data,pd.DataFrame): return data
-    d=data.copy().rename(columns=VI_COL)
-    for c in d.columns:
-        if d[c].dtype=='object': d[c]=d[c].replace(VI_VAL)
-    return d
-def _viet_dataframe(data,*args,**kwargs): return _orig_dataframe(_vi_df(data),*args,**kwargs)
-st.dataframe=_viet_dataframe
-
-# Chuẩn hóa tên cột: workbook có thể hiển thị tiếng Việt nhưng engine luôn dùng khóa kỹ thuật ổn định.
+# Excel đã được Việt hóa; bảng ánh xạ này chỉ để tương thích với các Master cũ hơn nếu người dùng tải lên.
 VN_TO_CANON={
-'Doanh thu thực tế (tỷ)':'Doanh thu Actual (tỷ)','Thu tiền thực tế (tỷ)':'Thu tiền Actual (tỷ)',
-'CAPEX thực tế (tỷ)':'CAPEX Actual (tỷ)','OPEX thực tế (tỷ)':'OPEX Actual (tỷ)','Lãi vay thực tế (tỷ)':'Lãi vay Actual (tỷ)',
-'Số sản phẩm bán':'Sales units','Đạt mốc pháp lý?':'Mốc pháp lý đạt?',
-'Doanh thu ngân sách lũy kế':'Doanh thu Budget YTD','Doanh thu thực tế lũy kế':'Doanh thu Actual YTD',
-'Chênh lệch doanh thu':'Variance DT','Chênh lệch doanh thu (%)':'Variance DT %',
-'CAPEX ngân sách lũy kế':'CAPEX Budget YTD','CAPEX thực tế lũy kế':'CAPEX Actual YTD',
-'Chênh lệch CAPEX':'Variance CAPEX','Chênh lệch CAPEX (%)':'Variance CAPEX %','Thu tiền thực tế lũy kế':'Thu tiền Actual YTD',
-'Khoảng thiếu vốn 12T':'Funding gap 12T (tỷ)','Phụ trách':'Owner',
-'Thay đổi giá bán':'Giá bán Δ','Thay đổi hấp thụ':'Absorption Δ','Thay đổi chi phí':'Chi phí Δ','Thay đổi lãi suất':'Lãi suất Δ',
-'Thay đổi hạn mức tín dụng':'Hạn mức tín dụng Δ','Dự báo doanh thu 24T':'Forecast DT 24T','Dự báo CAPEX 24T':'Forecast CAPEX 24T',
-'Dự báo khoảng thiếu vốn':'Forecast Funding Gap','Dự báo LNST':'Forecast LNST','Kích hoạt dự báo lại':'Trigger reforecast',
-'DSCR tối thiểu':'DSCR min','Biên an toàn hiện tại':'Headroom hiện tại','Thời gian dự kiến vi phạm':'Tháng dự kiến breach',
-'Xác suất vi phạm':'Xác suất breach','Lợi nhuận kỳ vọng':'Return proxy','Rủi ro thanh khoản':'Liquidity risk',
-'Rủi ro cam kết tài chính':'Covenant risk','Rủi ro bán hàng':'Sales risk','Điểm chiến lược':'Strategic score','Điểm rủi ro':'Risk score',
-'Điểm lợi nhuận điều chỉnh rủi ro':'RAR score','Nhu cầu vốn 12T':'Vốn yêu cầu 12T',
-'Ngày chụp dữ liệu':'Ngày snapshot','Người rà soát':'Reviewer','Hạn xử lý':'Deadline','Vướng mắc':'Blocker',
-'Ảnh hưởng dự báo':'Ảnh hưởng Forecast','Bằng chứng/Đường dẫn':'Bằng chứng/Link',
-'Doanh thu ngân sách năm':'Budget DT FY','Dự báo doanh thu còn lại':'Forecast DT còn lại','Doanh thu ước tính mới nhất năm':'LE Doanh thu FY',
-'Chênh lệch DT so ngân sách':'Variance DT vs Budget','Chênh lệch DT (%)':'Variance DT %','CAPEX ngân sách năm':'Budget CAPEX FY',
-'Dự báo CAPEX còn lại':'Forecast CAPEX còn lại','CAPEX ước tính mới nhất năm':'LE CAPEX FY','Chênh lệch CAPEX (%)':'Variance CAPEX %',
-'LNST ước tính':'LNST LE proxy','Trạng thái ước tính':'Trạng thái LE',
-'Doanh thu lũy kế':'Doanh thu YTD','Thu tiền lũy kế':'Thu tiền YTD','CAPEX lũy kế':'CAPEX YTD','Phải thu KH ước tính':'Phải thu KH proxy',
-'Tăng HTK/BĐS dở dang lũy kế':'HTK/BĐS dở dang tăng YTD','Phải trả NCC ước tính':'Phải trả NCC proxy',
-'Người mua trả tiền trước ước tính':'Người mua trả tiền trước proxy','Vốn lưu động ròng':'Net Working Capital','Vốn lưu động/Doanh thu':'NWC/Doanh thu',
-'Doanh thu ước tính năm':'LE Doanh thu FY','Thuế GTGT hiệu dụng giả định':'VAT effective rate giả định',
-'Thuế TNDN tiền mặt ước tính':'Thuế TNDN cash proxy','Thuế GTGT tiền mặt ước tính':'VAT cash proxy',
-'Tổng thuế/nghĩa vụ tiền mặt':'Tổng cash tax/obligation','Còn phải thu xếp':'Còn phải thu xếp',
-'Doanh thu ước tính mới nhất':'LE DT FY','Tác động giá bán':'Price impact','Tác động hấp thụ/tiến độ':'Absorption/Timing impact',
-'Tác động chậm pháp lý':'Legal delay impact','Phần còn lại do triển khai':'Execution residual','CAPEX ngân sách':'Budget CAPEX',
-'CAPEX ước tính mới nhất':'LE CAPEX','Tác động chi phí':'Cost impact','Tác động lãi vay ước tính':'Interest impact proxy',
-'Cầu nối lợi nhuận ròng ước tính':'Net profit bridge proxy','Yếu tố tác động lớn nhất':'Driver lớn nhất',
-'Miền dữ liệu':'Data domain','Chủ dữ liệu':'Data owner','Chủ nghiệp vụ':'Business owner','Quy tắc chốt/khóa':'Cut-off/Lock rule',
-'Trạng thái chất lượng dữ liệu':'Trạng thái DQ','Phụ thuộc đầu ra':'Phụ thuộc downstream',
-'Mã ánh xạ':'Mã mapping','Quy tắc chuyển đổi':'Transform','Kiểm tra hợp lệ':'Validation',
-'Mã lô':'Batch ID','Khóa bản ghi':'Record key','Tổng kiểm soát nguồn':'Control total nguồn','Tổng kiểm soát Master':'Control total Master',
-'Điểm chất lượng dữ liệu':'DQ Score','Trạng thái lô':'Trạng thái batch',
-'Mã nhật ký':'Audit ID','Thời điểm':'Timestamp','Mã luồng phê duyệt':'Workflow/Approval ID','Kỳ ảnh hưởng':'Kỳ bị ảnh hưởng','Trạng thái rà soát':'Trạng thái review',
-'Mã vai trò':'Role ID','Nhập/Khu vực chờ':'Import/Staging','Chuyển số thực tế':'Promote Actual','Sửa dự báo':'Sửa Forecast','Sửa pháp lý':'Sửa Legal',
-'Sửa khoản vay':'Sửa Loan','Duyệt luồng':'Duyệt Workflow','Khóa phiên bản':'Khóa phiên bản','Xem BCTC hợp nhất':'Xem BCTC HN',
-'Xuất báo cáo HĐQT':'Xuất Board Pack','Quản trị ánh xạ':'Admin mapping','Rà soát nhật ký':'Audit review',
-'Trạng thái số thực tế':'Actual status','Ngày khóa mềm':'Ngày soft close','Ngày khóa cứng':'Ngày hard close','Cho chuyển vào Master?':'Cho promote?',
-'Cho sửa số thực tế?':'Cho sửa Actual?','Cho hạch toán điều chỉnh?':'Cho post adjustment?','Cửa sổ điều chỉnh':'Adjustment window','Yêu cầu nhật ký?':'Audit required?',
-'Mã luồng':'Pipeline ID','Đã nhận nguồn':'Source received','Kiểm tra cấu trúc':'Schema check','Kiểm tra ánh xạ':'Mapping check','Kiểm tra chất lượng':'DQ check',
-'Đối chiếu':'Reconciliation','Phê duyệt':'Approval','Kiểm tra khóa kỳ':'Period lock check','Đã chuyển vào Master':'Promoted to Master','Lô gần nhất':'Latest batch',
-'Trạng thái SLA':'SLA status','Hành động tiếp theo':'Next action','Khoảng thiếu':'Gap','Điều kiện vận hành':'Điều kiện Go-Live','Phụ thuộc':'Dependency',
-'Trạng thái kiểm thử':'UAT status','Phê duyệt cuối':'Sign-off','Được điều phối tiền?':'Được Cash Pool?'
+"Doanh thu thực tế (tỷ)":"Doanh thu Actual (tỷ)","Thu tiền thực tế (tỷ)":"Thu tiền Actual (tỷ)","CAPEX thực tế (tỷ)":"CAPEX Actual (tỷ)","OPEX thực tế (tỷ)":"OPEX Actual (tỷ)","Lãi vay thực tế (tỷ)":"Lãi vay Actual (tỷ)",
+"Số sản phẩm bán":"Sales units","Đạt mốc pháp lý?":"Mốc pháp lý đạt?","Doanh thu ngân sách lũy kế":"Doanh thu Budget YTD","Doanh thu thực tế lũy kế":"Doanh thu Actual YTD","Chênh lệch doanh thu":"Variance DT","Chênh lệch doanh thu (%)":"Variance DT %",
+"CAPEX ngân sách lũy kế":"CAPEX Budget YTD","CAPEX thực tế lũy kế":"CAPEX Actual YTD","Chênh lệch CAPEX":"Variance CAPEX","Chênh lệch CAPEX (%)":"Variance CAPEX %","Thu tiền thực tế lũy kế":"Thu tiền Actual YTD","Khoảng thiếu vốn 12T":"Funding gap 12T (tỷ)","Khoảng thiếu vốn 12T (tỷ)":"Funding gap 12T (tỷ)",
+"Thay đổi giá bán":"Giá bán Δ","Thay đổi hấp thụ":"Absorption Δ","Thay đổi chi phí":"Chi phí Δ","Thay đổi lãi suất":"Lãi suất Δ","Thay đổi hạn mức tín dụng":"Hạn mức tín dụng Δ","Dự báo doanh thu 24T":"Forecast DT 24T","Dự báo CAPEX 24T":"Forecast CAPEX 24T","Dự báo khoảng thiếu vốn":"Forecast Funding Gap","Dự báo LNST":"Forecast LNST","Kích hoạt dự báo lại":"Trigger reforecast",
+"DSCR tối thiểu":"DSCR min","Biên an toàn hiện tại":"Headroom hiện tại","Thời gian dự kiến vi phạm":"Tháng dự kiến breach","Xác suất vi phạm":"Xác suất breach","Lợi nhuận kỳ vọng":"Return proxy","Rủi ro thanh khoản":"Liquidity risk","Rủi ro cam kết tài chính":"Covenant risk","Rủi ro vi phạm":"Xác suất breach","Rủi ro bán hàng":"Sales risk","Điểm chiến lược":"Strategic score","Điểm rủi ro":"Risk score","Điểm lợi nhuận điều chỉnh rủi ro":"RAR score","Nhu cầu vốn 12T":"Vốn yêu cầu 12T",
+"Doanh thu ngân sách năm":"Budget DT FY","Dự báo doanh thu còn lại":"Forecast DT còn lại","Doanh thu ước tính mới nhất năm":"LE Doanh thu FY","Chênh lệch DT so ngân sách":"Variance DT vs Budget","Chênh lệch DT (%)":"Variance DT %","CAPEX ngân sách năm":"Budget CAPEX FY","Dự báo CAPEX còn lại":"Forecast CAPEX còn lại","CAPEX ước tính mới nhất năm":"LE CAPEX FY","LNST ước tính":"LNST LE proxy","Trạng thái ước tính":"Trạng thái LE",
+"Doanh thu lũy kế":"Doanh thu YTD","Thu tiền lũy kế":"Thu tiền YTD","CAPEX lũy kế":"CAPEX YTD","Phải thu KH ước tính":"Phải thu KH proxy","Tăng HTK/BĐS dở dang lũy kế":"HTK/BĐS dở dang tăng YTD","Phải trả NCC ước tính":"Phải trả NCC proxy","Người mua trả tiền trước ước tính":"Người mua trả tiền trước proxy","Vốn lưu động ròng":"Net Working Capital","Vốn lưu động/Doanh thu":"NWC/Doanh thu",
+"Doanh thu ước tính năm":"LE Doanh thu FY","Thuế GTGT hiệu dụng giả định":"VAT effective rate giả định","Thuế TNDN tiền mặt ước tính":"Thuế TNDN cash proxy","Thuế GTGT tiền mặt ước tính":"VAT cash proxy","Tổng thuế/nghĩa vụ tiền mặt":"Tổng cash tax/obligation",
+"Tác động giá bán":"Price impact","Tác động hấp thụ/tiến độ":"Absorption/Timing impact","Tác động chậm pháp lý":"Legal delay impact","Phần còn lại do triển khai":"Execution residual","Tác động chi phí":"Cost impact","Tác động lãi vay ước tính":"Interest impact proxy","Cầu nối lợi nhuận ròng ước tính":"Net profit bridge proxy","Yếu tố tác động lớn nhất":"Driver lớn nhất",
+"Miền dữ liệu":"Data domain","Chủ dữ liệu":"Data owner","Chủ nghiệp vụ":"Business owner","Quy tắc chốt/khóa":"Cut-off/Lock rule","Trạng thái chất lượng dữ liệu":"Trạng thái DQ","Mã ánh xạ":"Mã mapping","Quy tắc chuyển đổi":"Transform","Kiểm tra hợp lệ":"Validation","Mã lô":"Batch ID","Khóa bản ghi":"Record key","Điểm chất lượng dữ liệu":"DQ Score","Trạng thái lô":"Trạng thái batch",
+"Mã nhật ký":"Audit ID","Thời điểm":"Timestamp","Trạng thái rà soát":"Trạng thái review","Mã vai trò":"Role ID","Trạng thái số thực tế":"Actual status","Mã luồng":"Pipeline ID","Đã nhận nguồn":"Source received","Kiểm tra cấu trúc":"Schema check","Kiểm tra ánh xạ":"Mapping check","Kiểm tra chất lượng":"DQ check","Đối chiếu":"Reconciliation","Phê duyệt":"Approval","Kiểm tra khóa kỳ":"Period lock check","Đã chuyển vào Master":"Promoted to Master","Lô gần nhất":"Latest batch","Trạng thái SLA":"SLA status","Hành động tiếp theo":"Next action","Phụ thuộc":"Dependency","Trạng thái kiểm thử":"UAT status","Phê duyệt cuối":"Sign-off","Phụ trách":"Owner","Người rà soát":"Reviewer","Hạn xử lý":"Deadline","Được điều phối tiền?":"Được Cash Pool?"
 }
 
 def _clean_loaded_sheet(df):
-    if df is None or df.empty: return pd.DataFrame() if df is None else df
-    d=df.dropna(how='all').copy()
-    d=d.loc[:, ~d.columns.astype(str).str.startswith('Unnamed')]
-    d=d.rename(columns={c:VN_TO_CANON.get(c,c) for c in d.columns})
-    return d
-
-DEFAULT=Path(__file__).with_name('Real_Estate_Project_Master.xlsx')
-upload=st.sidebar.file_uploader('Tải file Master Excel', type=['xlsx'])
-src=upload if upload else DEFAULT
+    if df is None or df.empty:return pd.DataFrame() if df is None else df
+    d=df.dropna(how="all").copy()
+    d=d.loc[:,~d.columns.astype(str).str.startswith("Unnamed")]
+    return d.rename(columns={c:VN_TO_CANON.get(str(c),str(c)) for c in d.columns})
 
 @st.cache_data(show_spinner=False)
 def load_book(source):
     x=pd.ExcelFile(source)
-    return {s:_clean_loaded_sheet(pd.read_excel(source,sheet_name=s,header=2)) for s in x.sheet_names}
+    return {name:_clean_loaded_sheet(pd.read_excel(source,sheet_name=name,header=2)) for name in x.sheet_names}
 
-try:
-    book=load_book(src)
+def get_col(df,*names):
+    for n in names:
+        if n in df.columns:return n
+    return None
+
+def num_series(df,*names):
+    c=get_col(df,*names)
+    return pd.to_numeric(df[c],errors="coerce") if c else pd.Series(0,index=df.index,dtype=float)
+
+def filter_project(df,project):
+    if df is None or df.empty or project=="Tất cả dự án":return df
+    c=get_col(df,"Mã dự án","Dự án")
+    return df[df[c].astype(str)==project].copy() if c else df
+
+def vn_value(v):
+    mp={"Project Finance":"Tài trợ dự án","Term Loan":"Vay kỳ hạn","Acquisition Facility":"Khoản vay mua lại","Cash sweep":"Quét tiền trả nợ","Cost overrun test":"Kiểm tra vượt chi phí","Legal milestone":"Mốc pháp lý","cash upstream":"chuyển tiền về công ty mẹ","Hạn chế cash upstream":"Hạn chế chuyển tiền về công ty mẹ","grace period/bridge":"ân hạn/khoản vay cầu nối","sales velocity":"tốc độ bán hàng","cash buffer":"dự phòng tiền mặt","Execution":"Triển khai","Cost":"Chi phí","Legal":"Pháp lý","Price":"Giá bán","Timing/Other":"Tiến độ/Khác","Actual":"Thực tế","Budget":"Ngân sách","Latest Estimate":"Ước tính mới nhất","Rolling Forecast":"Dự báo cuốn chiếu","Promoted":"Đã chuyển","DQ check":"Kiểm tra chất lượng","Approval":"Phê duyệt","Treasury":"Ngân quỹ","Project Finance":"Tài trợ dự án","Term Loan":"Vay kỳ hạn","Acquisition Facility":"Khoản vay mua lại","Green":"Đạt","Amber":"Cần hoàn thiện","NO-GO":"CHƯA SẴN SÀNG","GO":"SẴN SÀNG"}
+    return mp.get(v,v)
+
+def display_df(df):
+    if df is None:return pd.DataFrame()
+    d=df.copy()
+    rename={
+    "Funding gap (tỷ)":"Khoảng thiếu vốn (tỷ)","Funding gap 12T (tỷ)":"Khoảng thiếu vốn 12T (tỷ)","Budget DT FY":"Doanh thu ngân sách năm","LE Doanh thu FY":"Doanh thu ước tính mới nhất","Variance DT vs Budget":"Chênh lệch DT so ngân sách","LE CAPEX FY":"CAPEX ước tính mới nhất","LNST LE proxy":"LNST ước tính","Trạng thái LE":"Trạng thái ước tính",
+    "DSCR min":"DSCR tối thiểu","Headroom hiện tại":"Biên an toàn hiện tại","Tháng dự kiến breach":"Thời gian dự kiến vi phạm","Xác suất breach":"Rủi ro vi phạm","Covenant khác":"Cam kết tài chính khác","Headroom (tỷ)":"Biên hạn mức (tỷ)","Owner":"Phụ trách","Reviewer":"Người rà soát","Deadline":"Hạn xử lý","Driver lớn nhất":"Yếu tố tác động lớn nhất","Net Working Capital":"Vốn lưu động ròng","Data domain":"Miền dữ liệu","DQ Score":"Điểm chất lượng dữ liệu","SLA status":"Trạng thái SLA","Latest batch":"Lô gần nhất","Next action":"Hành động tiếp theo","Source received":"Đã nhận nguồn","Schema check":"Kiểm tra cấu trúc","Mapping check":"Kiểm tra ánh xạ","DQ check":"Kiểm tra chất lượng","Reconciliation":"Đối chiếu","Approval":"Phê duyệt","Period lock check":"Kiểm tra khóa kỳ","Promoted to Master":"Đã chuyển vào Master","UAT status":"Trạng thái kiểm thử","Sign-off":"Phê duyệt cuối","Dependency":"Phụ thuộc"}
+    d=d.rename(columns=rename)
+    for c in d.select_dtypes(include="object").columns:d[c]=d[c].map(vn_value)
+    return d
+
+def show_table(df,cols=None,height=None):
+    if df is None or df.empty:
+        st.info("Chưa có dữ liệu phù hợp.");return
+    d=df.copy()
+    if cols:d=d[[c for c in cols if c in d.columns]]
+    st.dataframe(display_df(d),use_container_width=True,hide_index=True,height=height)
+
+def kpi(label,value,state=None,kind="good"):
+    state_html=f'<div class="kpi-state {kind}">{state}</div>' if state else ''
+    st.markdown(f'<div class="kpi-card"><div class="kpi-label">{label}</div><div class="kpi-value">{value}</div>{state_html}</div>',unsafe_allow_html=True)
+
+def title(text,sub=""):
+    st.markdown(f'<div class="page-title">{text}</div><div class="page-sub">{sub}</div>',unsafe_allow_html=True)
+
+# Sidebar input
+upload=st.sidebar.file_uploader("Tải file Master Excel",type=["xlsx"])
+source=upload if upload else DEFAULT
+try:book=load_book(source)
 except Exception as e:
-    st.error(f'Không đọc được file Master: {e}')
-    st.stop()
+    st.error(f"Không đọc được file Master Excel: {e}");st.stop()
 
-def tab(name):
-    if name not in book: return pd.DataFrame()
-    return book[name].copy()
+def tab(name):return book.get(name,pd.DataFrame()).copy()
 
-portfolio=tab('01_Danh_muc_du_an')
-assump=tab('17_Gia_dinh_mo_hinh')
-health=tab('16_Suc_khoe_du_an')
-project_codes=portfolio['Mã dự án'].dropna().astype(str).tolist()
-
-# --------------------- MODEL ENGINE ---------------------
+portfolio=tab("01_Danh_muc_du_an")
+assump=tab("17_Gia_dinh_mo_hinh")
+health=tab("16_Suc_khoe_du_an")
+project_codes=portfolio["Mã dự án"].dropna().astype(str).tolist() if "Mã dự án" in portfolio.columns else []
 def safe_num(x, default=0.0):
     try:
         if pd.isna(x): return default
@@ -273,395 +247,205 @@ def all_models(scen=None):
     for _,a in assump.iterrows(): frames.append(build_project_model(a,scen))
     return pd.concat(frames,ignore_index=True) if frames else pd.DataFrame()
 
-# Sidebar navigation
-mode=st.sidebar.radio('Cấp điều hành',['Toàn công ty / Danh mục','Chi tiết một dự án'])
-selected=None
-if mode=='Chi tiết một dự án':
-    label={r['Mã dự án']:f"{r['Mã dự án']} – {r['Tên dự án']}" for _,r in portfolio.iterrows()}
-    selected=st.sidebar.selectbox('Chọn dự án',project_codes,format_func=lambda x:label.get(x,x))
-st.sidebar.caption('Nền tảng tích hợp quản trị dự án, pháp lý, tài chính, dữ liệu vận hành, phân quyền, khóa kỳ và kiểm soát sẵn sàng vận hành.')
 
-# Scenario controls used in both levels
-with st.sidebar.expander('Kịch bản điều hành', expanded=False):
-    price_change=st.slider('Giá bán',-30,20,0,1)/100
-    absorption_change=st.slider('Tốc độ hấp thụ',-50,30,0,5)/100
-    cost_change=st.slider('Chi phí đầu tư/xây dựng',-10,30,0,1)/100
-    rate_change=st.slider('Lãi suất vay',-2.0,5.0,0.0,0.25)/100
-    delay_add=st.slider('Chậm pháp lý bổ sung (ngày)',0,365,0,15)
-    credit_limit_change=st.slider('Thay đổi hạn mức tín dụng',-50,30,0,5)/100
-scen={'price_change':price_change,'absorption_change':absorption_change,'cost_change':cost_change,'rate_change':rate_change,'delay_days_add':delay_add,'credit_limit_change':credit_limit_change}
 
+# ============================= ĐIỀU HƯỚNG =============================
+if "page" not in st.session_state: st.session_state.page="01. Tổng quan danh mục"
+def nav_group(group,items):
+    st.sidebar.markdown(f'<div class="section-label">{group}</div>',unsafe_allow_html=True)
+    for label in items:
+        active=st.session_state.page==label
+        if st.sidebar.button(("▌ " if active else "   ")+label,key="nav_"+label,use_container_width=True,type="primary" if active else "secondary"):
+            st.session_state.page=label; st.rerun()
+nav_group("Quản trị & chiến lược",["01. Tổng quan danh mục","02. Bảng điều khiển KPI","03. Bản đồ danh mục","04. Tiến độ tổng thể"])
+nav_group("Tài chính & vận hành",["05. BCTC hợp nhất","06. Loại trừ nội bộ","07. Thác nguồn vốn","08. Dòng tiền 60T & sức chịu đựng","09. Sức khỏe & cảnh báo sớm","10. Quyết định TGĐ"])
+nav_group("Hiệu suất & dự báo",["11. Hiệu suất & dự báo","12. Phân bổ vốn","13. Bộ báo cáo HĐQT/CFO"])
+nav_group("Kế hoạch & kiểm soát",["14. Kế hoạch & kiểm soát","15. Dữ liệu & kiểm soát"])
+page=st.session_state.page
+st.sidebar.markdown('<div class="section-label">Kịch bản điều hành</div>',unsafe_allow_html=True)
+with st.sidebar.expander("Điều chỉnh giả định",expanded=False):
+    price_change=st.slider("Giá bán",-30,20,0,1)/100
+    absorption_change=st.slider("Tốc độ hấp thụ",-50,30,0,5)/100
+    cost_change=st.slider("Chi phí đầu tư/xây dựng",-10,30,0,1)/100
+    rate_change=st.slider("Lãi suất vay",-2.0,5.0,0.0,.25)/100
+    delay_add=st.slider("Chậm pháp lý bổ sung (ngày)",0,365,0,15)
+    credit_limit_change=st.slider("Thay đổi hạn mức tín dụng",-50,30,0,5)/100
+scen={"price_change":price_change,"absorption_change":absorption_change,"cost_change":cost_change,"rate_change":rate_change,"delay_days_add":delay_add,"credit_limit_change":credit_limit_change}
 model_all=all_models(scen)
 
-# --------------------- PORTFOLIO ---------------------
-if mode=='Toàn công ty / Danh mục':
-    entities=tab('29_Danh_muc_phap_nhan')
-    treasury=tab('32_Treasury_Cash_Pool')
-    debtbook=tab('33_No_vay_Covenant')
-    elimin=tab('31_Loai_tru_hop_nhat')
-    waterfall=tab('34_Waterfall_Nguon_von')
-    consdata=tab('35_BCTC_Hop_nhat_Data')
-    ceo_actions=tab('39_Quyet_dinh_TGD')
+st.sidebar.markdown('---')
+st.sidebar.markdown('<div class="report-card"><div class="report-title">Hướng dẫn sử dụng</div><div class="report-desc">Chọn trang điều hành, chọn dự án ở đầu màn hình và tập trung xử lý các ngoại lệ màu vàng/đỏ.</div><div class="report-link">ⓘ Số thực tế đã khóa không bị dự báo ghi đè.</div></div>',unsafe_allow_html=True)
 
-    tabs=st.tabs([
-        '01. Bàn điều hành tập đoàn','02. Pháp nhân & SPV','03. Ngân quỹ / Điều phối tiền',
-        '04. Nợ vay & Cam kết tài chính','05. BCTC hợp nhất','06. Loại trừ nội bộ',
-        '07. Thác nguồn vốn','08. Dòng tiền 60T & Sức chịu đựng','09. Sức khỏe & EWS',
-        '10. Quyết định TGĐ','11. Hiệu suất & Dự báo','12. Phân bổ vốn',
-        '13. Báo cáo HĐQT/CFO','14. Kế hoạch & Phiên bản','15. Khóa sổ tháng',
-        '16. Ước tính mới nhất & Chênh lệch','17. Vốn lưu động & Thuế','18. Quản trị dữ liệu',
-        '19. Nhập dữ liệu & Ánh xạ','20. Đối chiếu dữ liệu','21. Nhật ký & Phân quyền',
-        '22. Khóa kỳ & Luồng dữ liệu','23. Kiểm soát vận hành','24. Pháp lý & chính sách'
-    ])
+# Header + bộ lọc dự án
+left,right=st.columns([4.8,1.65])
+with left:
+    st.markdown('<div class="topbar"><div><div class="brand-title">🏙️ Trung tâm điều hành danh mục, phát triển & đầu tư dự án bất động sản</div><div class="brand-sub">Nền tảng quản trị đa dự án dành cho doanh nghiệp trong nước &nbsp; | &nbsp; Tác giả: <span class="brand-author">Lê Hoàng Quân</span></div></div></div>',unsafe_allow_html=True)
+with right:
+    choices=["Tất cả dự án"]+project_codes
+    selected=st.selectbox("Chọn dự án",choices,label_visibility="collapsed")
+    now=datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d/%m/%Y %H:%M")
+    st.caption(f"🕒 Cập nhật gần nhất: {now}")
 
-    with tabs[0]:
-        total_inv=pd.to_numeric(portfolio['Tổng mức đầu tư (tỷ)'],errors='coerce').sum()
-        total_rev=pd.to_numeric(portfolio['Doanh thu kỳ vọng (tỷ)'],errors='coerce').sum()
-        group_gap=pd.to_numeric(treasury.loc[treasury['Mã pháp nhân'].astype(str)!='SPV06','Funding gap 12T (tỷ)'],errors='coerce').sum() if len(treasury) else 0
-        bank_debt=pd.to_numeric(debtbook['Dư nợ hiện tại (tỷ)'],errors='coerce').sum() if len(debtbook) else 0
-        cov_warn=(debtbook['Trạng thái'].astype(str)=='Cảnh báo').sum() if len(debtbook) else 0
-        c1,c2,c3,c4,c5=st.columns(5)
-        c1.metric('Pháp nhân hợp nhất',5)
-        c2.metric('Tổng mức đầu tư',f'{total_inv:,.0f} tỷ')
-        c3.metric('Khoảng thiếu vốn 12T',f'{group_gap:,.0f} tỷ')
-        c4.metric('Dư nợ ngân hàng',f'{bank_debt:,.0f} tỷ')
-        c5.metric('Cam kết tài chính cảnh báo',int(cov_warn))
+# Data tables
+entities=tab("29_Danh_muc_phap_nhan");treasury=tab("32_Treasury_Cash_Pool");debtbook=tab("33_No_vay_Covenant")
+elimin=tab("31_Loai_tru_hop_nhat");waterfall=tab("34_Waterfall_Nguon_von");consdata=tab("35_BCTC_Hop_nhat_Data")
+ceo=tab("39_Quyet_dinh_TGD")
+actual=tab("41_Actual_Theo_thang");bva=tab("42_Budget_vs_Actual");rolling=tab("43_Rolling_Forecast");covfc=tab("44_Covenant_Forecast");alloc=tab("45_Phan_bo_von")
+versions=tab("47_Quan_ly_Phien_ban");workflow=tab("48_Workflow_Phe_duyet");close=tab("49_Monthly_Close");latest=tab("50_Latest_Estimate");wc=tab("51_Working_Capital");tax=tab("52_Ke_hoach_Thue");bridge=tab("53_Variance_Bridge");dq=tab("54_Quan_tri_Du_lieu")
+source_cfg=tab("56_Cau_hinh_Import");mapping=tab("57_Tu_dien_Mapping");staging=tab("58_Staging_Import");recon=tab("59_Doi_chieu_Du_lieu");audit=tab("60_Audit_Trail");roles=tab("61_Phan_quyen");locks=tab("62_Khoa_Ky");pipe=tab("63_Data_Pipeline");ready=tab("64_GoLive_Readiness");ops=tab("65_Operational_Control")
 
-        dash=portfolio.merge(health[['Mã dự án','Điểm sức khỏe','Xếp loại']],on='Mã dự án',how='left',suffixes=('','_EWS'))
-        if len(treasury):
-            tgap=treasury[['Mã dự án','Funding gap 12T (tỷ)','Cảnh báo']].copy()
-            tgap=tgap[tgap['Mã dự án'].astype(str)!='-']
-            dash=dash.merge(tgap,on='Mã dự án',how='left')
-        st.dataframe(dash[['Mã dự án','Tên dự án','Giai đoạn','Điểm sức khỏe_EWS','Mức cảnh báo','Funding gap 12T (tỷ)','Cảnh báo','Vấn đề chính']],use_container_width=True,hide_index=True)
+# Lọc theo dự án ở cấp trang
+def pf(df):return filter_project(df,selected)
 
-        if len(consdata):
-            plot=consdata[['Năm mô hình','Doanh thu hợp nhất','LNST hợp nhất']].copy()
-            st.plotly_chart(px.bar(plot,x='Năm mô hình',y=['Doanh thu hợp nhất','LNST hợp nhất'],barmode='group',title='Doanh thu & LNST hợp nhất sau loại trừ'),use_container_width=True)
-        st.info('SPV06/DA06 đang trong quá trình M&A nên tiếp tục được để ngoài BCTC hợp nhất và điều phối tiền cho đến khi hoàn tất giao dịch.')
+# ============================= CÁC TRANG =============================
+if page.startswith("01."):
+    title("Tổng quan danh mục","Tổng hợp nhanh quy mô, nguồn vốn, sức khỏe và các quyết định trọng yếu của toàn danh mục.")
+    p=portfolio if selected=="Tất cả dự án" else pf(portfolio)
+    total_inv=num_series(p,"Tổng mức đầu tư (tỷ)").sum();total_rev=num_series(p,"Doanh thu kỳ vọng (tỷ)").sum()
+    gap=num_series(pf(treasury),"Funding gap 12T (tỷ)","Khoảng thiếu vốn 12T (tỷ)").sum();debt=num_series(pf(debtbook),"Dư nợ hiện tại (tỷ)").sum()
+    ks=st.columns(4)
+    with ks[0]:kpi("Tổng mức đầu tư",f"{total_inv:,.0f} tỷ")
+    with ks[1]:kpi("Doanh thu kỳ vọng",f"{total_rev:,.0f} tỷ")
+    with ks[2]:kpi("Khoảng thiếu vốn 12T",f"{gap:,.1f} tỷ", "Cần xử lý" if gap>0 else "Trong ngưỡng","bad" if gap>0 else "good")
+    with ks[3]:kpi("Dư nợ hiện tại",f"{debt:,.1f} tỷ")
+    st.markdown("#### Danh mục dự án")
+    show_table(p,["Mã dự án","Tên dự án","Địa phương","Giai đoạn","Tổng mức đầu tư (tỷ)","Doanh thu kỳ vọng (tỷ)","Vấn đề chính"],330)
+    c1,c2=st.columns([1.1,1])
+    with c1:
+        h=pf(health);show_table(h,["Mã dự án","Tên dự án","Điểm sức khỏe","Xếp loại","Mức cảnh báo"],260)
+    with c2:
+        d=pf(ceo);show_table(d,["Ưu tiên","Pháp nhân/Dự án","Vấn đề","Mức độ","Khuyến nghị","Chủ trì","Hạn xử lý"],260)
 
-    with tabs[1]:
-        st.subheader('Cấu trúc công ty mẹ – SPV – dự án')
-        st.dataframe(entities,use_container_width=True,hide_index=True)
-        st.caption('Tỷ lệ sở hữu và phương pháp hợp nhất là dữ liệu đầu vào quản trị; khi áp dụng thật cần khớp hồ sơ pháp lý và BCTC từng pháp nhân.')
-
-    with tabs[2]:
-        st.subheader('Ngân quỹ & Điều phối tiền')
-        st.dataframe(treasury,use_container_width=True,hide_index=True)
-        if len(treasury):
-            pool_col=next((c for c in ['Được Cash Pool?','Được điều phối tiền?'] if c in treasury.columns),None)
-            eligible=treasury[treasury[pool_col].astype(str)=='Có'] if pool_col else treasury.iloc[0:0]
-            surplus=pd.to_numeric(eligible['Khả năng chuyển về CTM'],errors='coerce').sum()
-            deficit=pd.to_numeric(eligible['Nhu cầu nhận từ CTM'],errors='coerce').sum()
-            c1,c2,c3=st.columns(3)
-            c1.metric('Thặng dư có thể điều phối',f'{surplus:,.0f} tỷ')
-            c2.metric('Nhu cầu nhận vốn',f'{deficit:,.0f} tỷ')
-            c3.metric('Thiếu hụt sau điều phối',f'{max(0,deficit-surplus):,.0f} tỷ')
-        st.warning('Điều phối tiền chỉ là đề xuất điều hành. Không tự động chuyển tiền nếu hợp đồng tín dụng, cam kết tài chính, tài khoản kiểm soát hoặc mục đích sử dụng vốn bị hạn chế.')
-
-    with tabs[3]:
-        st.subheader('Danh mục nợ và cam kết tài chính')
-        st.dataframe(debtbook,use_container_width=True,hide_index=True)
-        if len(debtbook):
-            warns=debtbook[debtbook['Trạng thái'].astype(str)=='Cảnh báo']
-            if len(warns):
-                st.error('Khoản vay cần xử lý: '+', '.join(warns['Mã khoản vay'].astype(str)))
-            fig=px.scatter(debtbook,x='DSCR dự báo',y='LTV hiện tại',size='Dư nợ hiện tại (tỷ)',color='Trạng thái',hover_name='Mã khoản vay',title='Bản đồ cam kết tài chính: DSCR – LTV')
-            st.plotly_chart(fig,use_container_width=True)
-
-    with tabs[4]:
-        st.subheader('BCTC hợp nhất kế hoạch sau loại trừ nội bộ')
-        b1=tab('36_B01_DN_Hop_nhat'); b2=tab('37_B02_DN_Hop_nhat'); b3=tab('38_B03_DN_Hop_nhat')
-        f1,f2,f3=st.tabs(['B01-DN • Bảng cân đối kế toán hợp nhất','B02-DN • Kết quả hoạt động kinh doanh hợp nhất','B03-DN • Lưu chuyển tiền tệ hợp nhất'])
-        with f1: st.dataframe(b1,use_container_width=True,hide_index=True)
-        with f2: st.dataframe(b2,use_container_width=True,hide_index=True)
-        with f3: st.dataframe(b3,use_container_width=True,hide_index=True)
-        if len(consdata):
-            st.caption('Đối chiếu dữ liệu hợp nhất:')
-            st.dataframe(consdata,use_container_width=True,hide_index=True)
-        st.info('SPV06 hiện được loại khỏi hợp nhất; các khoản doanh thu/chi phí, phải thu/phải trả và cho vay/vay nội bộ được kiểm soát riêng. Lợi thế thương mại và bút toán hợp nhất thực tế cần nhập khi có dữ liệu.')
-
-    with tabs[5]:
-        st.subheader('Giao dịch nội bộ & bút toán loại trừ')
-        ic=tab('30_Giao_dich_noi_bo')
-        st.dataframe(ic,use_container_width=True,hide_index=True)
-        st.dataframe(elimin,use_container_width=True,hide_index=True)
-        if len(elimin) and (elimin['Trạng thái'].astype(str)!='OK').any():
-            st.error('Có chênh lệch giao dịch nội bộ chưa khớp; cần đối chiếu trước khi dùng BCTC hợp nhất.')
-
-    with tabs[6]:
-        st.subheader('Thác nguồn vốn')
-        psel=st.selectbox('Chọn dự án để xem thác nguồn vốn',project_codes,key='wf_project')
-        wf=waterfall[waterfall['Mã dự án'].astype(str)==psel].copy() if len(waterfall) else waterfall
-        st.dataframe(wf,use_container_width=True,hide_index=True)
-        if len(wf):
-            shortage=pd.to_numeric(wf['Thiếu hụt sau waterfall'],errors='coerce').min()
-            if shortage>0: st.error(f'Còn thiếu {shortage:,.0f} tỷ sau khi sử dụng các nguồn trong thác nguồn vốn.')
-            else: st.success('Thác nguồn vốn hiện có thể bao phủ nhu cầu theo dữ liệu đầu vào.')
-
-    with tabs[7]:
-        agg=model_all.groupby('Tháng',as_index=False)[['Thu khách hàng (tỷ)','Chi đầu tư (tỷ)','Vay tăng (tỷ)','Trả nợ (tỷ)','Dư nợ cuối kỳ (tỷ)','Funding gap (tỷ)','Tiền cuối kỳ (tỷ)']].sum()
-        fig=go.Figure()
-        fig.add_trace(go.Scatter(x=agg['Tháng'],y=agg['Thu khách hàng (tỷ)'],name='Thu khách hàng'))
-        fig.add_trace(go.Scatter(x=agg['Tháng'],y=agg['Chi đầu tư (tỷ)'],name='Chi đầu tư'))
-        fig.add_trace(go.Scatter(x=agg['Tháng'],y=agg['Dư nợ cuối kỳ (tỷ)'],name='Dư nợ'))
-        fig.update_layout(title='Dòng tiền và dư nợ 60 tháng',hovermode='x unified')
+elif page.startswith("02."):
+    title("Bảng điều khiển KPI","Theo dõi ngoại lệ về doanh thu, CAPEX, vốn, nợ và sức khỏe dự án.")
+    d=pf(bva)
+    warn=(d["Cảnh báo"].astype(str)=="CẢNH BÁO").sum() if "Cảnh báo" in d.columns else 0
+    gap=num_series(d,"Funding gap 12T (tỷ)").sum();rev=num_series(d,"Doanh thu Actual YTD").sum();capex=num_series(d,"CAPEX Actual YTD").sum()
+    c=st.columns(4)
+    with c[0]:kpi("Dự án cảnh báo",str(int(warn)),"Ngoại lệ cần xử lý","bad" if warn else "good")
+    with c[1]:kpi("Doanh thu thực tế lũy kế",f"{rev:,.1f} tỷ")
+    with c[2]:kpi("CAPEX thực tế lũy kế",f"{capex:,.1f} tỷ")
+    with c[3]:kpi("Khoảng thiếu vốn 12T",f"{gap:,.1f} tỷ","Cảnh báo" if gap>0 else "Ổn định","bad" if gap>0 else "good")
+    show_table(d,height=360)
+    if not d.empty:
+        fig=px.bar(d,x="Mã dự án",y=[c for c in ["Doanh thu Budget YTD","Doanh thu Actual YTD"] if c in d.columns],barmode="group")
+        fig.update_layout(title="Ngân sách và thực tế – Doanh thu",legend_title_text="Chỉ tiêu",yaxis_title="Tỷ đồng",xaxis_title="Dự án")
+        fig.for_each_trace(lambda t:t.update(name={"Doanh thu Budget YTD":"Ngân sách","Doanh thu Actual YTD":"Thực tế"}.get(t.name,t.name)))
         st.plotly_chart(fig,use_container_width=True)
-        base=all_models({})
-        base_gap=base.groupby('Tháng')['Funding gap (tỷ)'].sum().max()
-        stress_gap=model_all.groupby('Tháng')['Funding gap (tỷ)'].sum().max()
-        base_ni=base['LNST (tỷ)'].sum(); stress_ni=model_all['LNST (tỷ)'].sum()
-        c1,c2=st.columns(2)
-        c1.metric('Khoảng thiếu vốn đỉnh',f'{stress_gap:,.0f} tỷ',f'{stress_gap-base_gap:+,.0f}')
-        c2.metric('LNST 60T',f'{stress_ni:,.0f} tỷ',f'{stress_ni-base_ni:+,.0f}')
 
-    with tabs[8]:
-        h=health.sort_values('Điểm sức khỏe').copy()
-        st.dataframe(h,use_container_width=True,hide_index=True)
-        st.plotly_chart(px.bar(h,x='Điểm sức khỏe',y='Tên dự án',orientation='h',color='Xếp loại',title='Chỉ số sức khỏe dự án'),use_container_width=True)
+elif page.startswith("03."):
+    title("Bản đồ danh mục","Nhìn danh mục theo giai đoạn, quy mô đầu tư, sức khỏe và khoảng thiếu vốn.")
+    p=portfolio.copy();h=health[[c for c in ["Mã dự án","Điểm sức khỏe","Xếp loại"] if c in health.columns]].copy();p=p.merge(h,on="Mã dự án",how="left") if not h.empty else p
+    if not treasury.empty:p=p.merge(treasury[[c for c in ["Mã dự án","Funding gap 12T (tỷ)"] if c in treasury.columns]],on="Mã dự án",how="left")
+    p=pf(p);show_table(p,["Mã dự án","Tên dự án","Địa phương","Giai đoạn","Tổng mức đầu tư (tỷ)","Điểm sức khỏe","Xếp loại","Funding gap 12T (tỷ)"],300)
+    if not p.empty:
+        fig=px.scatter(p,x="Tổng mức đầu tư (tỷ)",y="Điểm sức khỏe",size="Doanh thu kỳ vọng (tỷ)",color="Giai đoạn",hover_name="Tên dự án",title="Quy mô đầu tư – Điểm sức khỏe")
+        fig.update_layout(xaxis_title="Tổng mức đầu tư (tỷ đồng)",yaxis_title="Điểm sức khỏe",legend_title_text="Giai đoạn")
+        st.plotly_chart(fig,use_container_width=True)
 
-    with tabs[9]:
-        st.subheader('Agenda quyết định TGĐ')
-        st.dataframe(ceo_actions,use_container_width=True,hide_index=True)
-        high=ceo_actions[ceo_actions['Mức độ'].astype(str)=='Rất cao'] if len(ceo_actions) else ceo_actions
-        if len(high): st.error(f'Có {len(high)} quyết định mức Rất cao cần xử lý.')
+elif page.startswith("04."):
+    title("Tiến độ tổng thể","Tập trung vào đường găng pháp lý, tiến độ thực hiện và các mốc đang quá hạn.")
+    legal=pf(tab("14_Duong_gang_PL"));actions=pf(tab("07_Hanh_dong"))
+    t1,t2=st.tabs(["Đường găng pháp lý","Danh sách hành động"])
+    with t1:show_table(legal,height=440)
+    with t2:show_table(actions,height=440)
 
-    with tabs[10]:
-        st.subheader('Quản trị hiệu suất & Dự báo cuốn chiếu')
-        bva=tab('42_Budget_vs_Actual'); rf=tab('43_Rolling_Forecast'); cv=tab('44_Covenant_Forecast')
-        p1,p2,p3=st.tabs(['Ngân sách so với thực tế','Dự báo cuốn chiếu 24T','Dự báo cam kết tài chính'])
-        with p1:
-            st.dataframe(bva,use_container_width=True,hide_index=True)
-            if len(bva): st.plotly_chart(px.bar(bva,x='Mã dự án',y=['Doanh thu Budget YTD','Doanh thu Actual YTD'],barmode='group',title='Doanh thu ngân sách so với thực tế lũy kế'),use_container_width=True)
-        with p2:
-            st.dataframe(rf,use_container_width=True,hide_index=True)
-            if len(rf) and (rf['Trigger reforecast'].astype(str)=='REFORECAST').any(): st.warning('Có dự án chạm ngưỡng cần dự báo lại – cần khóa giả định mới và trình phê duyệt.')
-        with p3:
-            st.dataframe(cv,use_container_width=True,hide_index=True)
-            if len(cv) and (cv['Xác suất breach'].astype(str)=='Cao').any(): st.error('Có cam kết tài chính có xác suất vi phạm cao trong kỳ dự báo.')
+elif page.startswith("05."):
+    title("Báo cáo tài chính hợp nhất","B01-DN, B02-DN và B03-DN hợp nhất phục vụ quản trị.")
+    if selected!="Tất cả dự án" and not assump.empty:
+        a=assump[assump["Mã dự án"].astype(str)==selected]
+        if not a.empty: show_vnfs(build_vnfs(build_project_model(a.iloc[0],scen),a.iloc[0]),f"BCTC kế hoạch – {selected}")
+    else:
+        t1,t2,t3=st.tabs(["Bảng cân đối kế toán","Kết quả hoạt động kinh doanh","Lưu chuyển tiền tệ"])
+        with t1:show_table(tab("36_B01_DN_Hop_nhat"),height=500)
+        with t2:show_table(tab("37_B02_DN_Hop_nhat"),height=500)
+        with t3:show_table(tab("38_B03_DN_Hop_nhat"),height=500)
 
-    with tabs[11]:
-        st.subheader('Phân bổ vốn – Lợi nhuận điều chỉnh theo rủi ro')
-        ca=tab('45_Phan_bo_von')
-        st.dataframe(ca,use_container_width=True,hide_index=True)
-        if len(ca): st.plotly_chart(px.scatter(ca,x='Risk score',y='RAR score',size='Vốn yêu cầu 12T',color='Quyết định',hover_name='Dự án',title='Ma trận phân bổ vốn'),use_container_width=True)
+elif page.startswith("06."):
+    title("Loại trừ nội bộ","Kiểm soát giao dịch nội bộ và bút toán loại trừ trước khi hợp nhất.")
+    t1,t2=st.tabs(["Giao dịch nội bộ","Bút toán loại trừ"])
+    with t1:show_table(tab("30_Giao_dich_noi_bo"),height=430)
+    with t2:show_table(elimin,height=430)
 
-    with tabs[12]:
-        st.subheader('Bộ báo cáo HĐQT/CFO – 3–5 phút')
-        le=tab('50_Latest_Estimate')
-        close=tab('49_Monthly_Close')
-        cv=tab('44_Covenant_Forecast')
-        if len(le):
-            rev_le=pd.to_numeric(le['LE Doanh thu FY'],errors='coerce').sum()
-            ni_le=pd.to_numeric(le['LNST LE proxy'],errors='coerce').sum()
-            var_rev=pd.to_numeric(le['Variance DT vs Budget'],errors='coerce').sum()
-            capex_le=pd.to_numeric(le['LE CAPEX FY'],errors='coerce').sum()
-            gap=pd.to_numeric(le['Funding gap 12T (tỷ)'],errors='coerce').sum()
-            actions=(le['Trạng thái LE'].astype(str)=='CẦN HÀNH ĐỘNG').sum()
-            k1,k2,k3,k4,k5,k6=st.columns(6)
-            k1.metric('Doanh thu ước tính 2026',f'{rev_le:,.1f} tỷ')
-            k2.metric('LNST ước tính 2026',f'{ni_le:,.1f} tỷ')
-            k3.metric('Chênh lệch DT so ngân sách',f'{var_rev:,.1f} tỷ')
-            k4.metric('CAPEX ước tính 2026',f'{capex_le:,.1f} tỷ')
-            k5.metric('Khoảng thiếu vốn 12T',f'{gap:,.1f} tỷ')
-            k6.metric('Dự án cần hành động',int(actions))
-            if actions>0: st.error(f'Có {actions} dự án cần hành động. Cần rà soát nguyên nhân chênh lệch, vốn và tiến độ.')
-            st.markdown('#### Tình hình theo dự án')
-            cols=['Mã dự án','Budget DT FY','LE Doanh thu FY','Variance DT vs Budget','LE CAPEX FY','Funding gap 12T (tỷ)','Trạng thái LE','Hành động']
-            st.dataframe(le[[c for c in cols if c in le.columns]],use_container_width=True,hide_index=True)
-            c1,c2=st.columns([1.25,1])
-            with c1:
-                plot=le[['Mã dự án','Budget DT FY','LE Doanh thu FY']].copy()
-                fig=px.bar(plot,x='Mã dự án',y=['Budget DT FY','LE Doanh thu FY'],barmode='group',
-                           labels={'value':'Tỷ đồng','variable':'Chỉ tiêu'},title='Ngân sách và ước tính mới nhất – Doanh thu')
-                fig.for_each_trace(lambda t: t.update(name={'Budget DT FY':'Ngân sách','LE Doanh thu FY':'Ước tính mới nhất'}.get(t.name,t.name)))
-                st.plotly_chart(fig,use_container_width=True)
-            with c2:
-                st.markdown('#### Ngoại lệ cần chú ý')
-                overdue=(close['Trạng thái'].astype(str)=='Quá hạn').sum() if len(close) else 0
-                high_cov=(cv['Xác suất breach'].astype(str)=='Cao').sum() if len(cv) else 0
-                st.metric('Công việc khóa sổ quá hạn',int(overdue))
-                st.metric('Khoản vay rủi ro vi phạm cao',int(high_cov))
-                st.metric('Khoảng thiếu vốn toàn danh mục',f'{gap:,.1f} tỷ')
-            st.markdown('#### Quyết định ưu tiên của TGĐ/CFO')
-            dec_cols=['Ưu tiên','Pháp nhân/Dự án','Vấn đề','Mức độ','Khuyến nghị','Chủ trì','Hạn xử lý','Trạng thái']
-            st.dataframe(ceo_actions[[c for c in dec_cols if c in ceo_actions.columns]].head(6),use_container_width=True,hide_index=True)
-        else:
-            st.info('Chưa có dữ liệu Ước tính mới nhất để lập bộ báo cáo HĐQT/CFO.')
-        st.caption('Số điều hành sử dụng Ước tính mới nhất đã phê duyệt; Ngân sách là mốc so sánh; số Thực tế đã khóa không bị ghi đè.')
+elif page.startswith("07."):
+    title("Thác nguồn vốn","Ưu tiên nguồn vốn theo điều kiện pháp lý, chi phí vốn và khả năng sử dụng.")
+    show_table(pf(waterfall),height=520)
 
-    with tabs[13]:
-        st.subheader('Kế hoạch, quản lý phiên bản & luồng phê duyệt')
-        vc=tab('47_Quan_ly_Phien_ban'); wf=tab('48_Workflow_Phe_duyet')
-        p1,p2=st.tabs(['Quản lý phiên bản','Luồng phê duyệt'])
-        with p1:
-            st.dataframe(vc,use_container_width=True,hide_index=True)
-            if len(vc):
-                active=vc[vc['Trạng thái'].astype(str).isin(['Đang sử dụng','Đã khóa'])]
-                st.success(f'Có {len(active)} phiên bản đang sử dụng/đã khóa.')
-        with p2:
-            st.dataframe(wf,use_container_width=True,hide_index=True)
-            if len(wf):
-                critical=wf[wf['Mức độ'].astype(str)=='Rất cao']
-                if len(critical): st.error(f'Có {len(critical)} workflow mức Rất cao cần phê duyệt.')
+elif page.startswith("08."):
+    title("Dòng tiền 60 tháng & sức chịu đựng","Đánh giá thu tiền, chi đầu tư, dư nợ và khoảng thiếu vốn theo kịch bản.")
+    m=model_all if selected=="Tất cả dự án" else model_all[model_all["Mã dự án"].astype(str)==selected]
+    agg=m.groupby("Tháng",as_index=False)[["Thu khách hàng (tỷ)","Chi đầu tư (tỷ)","Dư nợ cuối kỳ (tỷ)","Funding gap (tỷ)"]].sum() if not m.empty else pd.DataFrame()
+    if not agg.empty:
+        fig=go.Figure();fig.add_trace(go.Scatter(x=agg["Tháng"],y=agg["Thu khách hàng (tỷ)"],name="Thu khách hàng"));fig.add_trace(go.Scatter(x=agg["Tháng"],y=agg["Chi đầu tư (tỷ)"],name="Chi đầu tư"));fig.add_trace(go.Scatter(x=agg["Tháng"],y=agg["Dư nợ cuối kỳ (tỷ)"],name="Dư nợ"));fig.update_layout(hovermode="x unified",legend_title_text="Chỉ tiêu",yaxis_title="Tỷ đồng",xaxis_title="Tháng")
+        st.plotly_chart(fig,use_container_width=True)
+        c=st.columns(3);peak=agg["Dư nợ cuối kỳ (tỷ)"].max();gap=agg["Funding gap (tỷ)"].max();cash_in=agg["Thu khách hàng (tỷ)"].sum()
+        with c[0]:kpi("Dư nợ đỉnh",f"{peak:,.1f} tỷ")
+        with c[1]:kpi("Khoảng thiếu vốn đỉnh",f"{gap:,.1f} tỷ","Cảnh báo" if gap>0 else "Không thiếu vốn","bad" if gap>0 else "good")
+        with c[2]:kpi("Tổng thu khách hàng",f"{cash_in:,.1f} tỷ")
 
-    with tabs[14]:
-        st.subheader('Kiểm soát khóa sổ tháng')
-        mc=tab('49_Monthly_Close')
-        st.dataframe(mc,use_container_width=True,hide_index=True)
-        if len(mc):
-            c1,c2,c3=st.columns(3)
-            c1.metric('Công việc',len(mc))
-            c2.metric('Đã hoàn thành',(mc['Trạng thái'].astype(str)=='Hoàn thành').sum())
-            c3.metric('Quá hạn',(mc['Trạng thái'].astype(str)=='Quá hạn').sum())
-            by=mc.groupby('Mã pháp nhân')['Số ngày trễ'].sum().reset_index()
-            st.plotly_chart(px.bar(by,x='Mã pháp nhân',y='Số ngày trễ',title='Ngày trễ khóa sổ theo pháp nhân'),use_container_width=True)
+elif page.startswith("09."):
+    title("Sức khỏe dự án & cảnh báo sớm","Theo dõi điểm sức khỏe, rủi ro và tín hiệu cần can thiệp.")
+    h=pf(health);show_table(h,height=360)
+    if not h.empty and "Điểm sức khỏe" in h.columns:
+        fig=px.bar(h.sort_values("Điểm sức khỏe"),x="Điểm sức khỏe",y="Tên dự án",orientation="h",color="Xếp loại",title="Điểm sức khỏe dự án")
+        fig.update_layout(legend_title_text="Xếp loại");st.plotly_chart(fig,use_container_width=True)
 
-    with tabs[15]:
-        st.subheader('Ước tính mới nhất & Cầu nối chênh lệch')
-        le=tab('50_Latest_Estimate'); vb=tab('53_Variance_Bridge')
-        l1,l2=st.tabs(['Ước tính mới nhất 2026','Cầu nối chênh lệch'])
-        with l1:
-            st.dataframe(le,use_container_width=True,hide_index=True)
-            if len(le): st.plotly_chart(px.bar(le,x='Mã dự án',y=['Budget DT FY','LE Doanh thu FY'],barmode='group',title='Ngân sách so với ước tính mới nhất – Doanh thu'),use_container_width=True)
-        with l2:
-            st.dataframe(vb,use_container_width=True,hide_index=True)
-            if len(vb): st.plotly_chart(px.bar(vb,x='Mã dự án',y='Net profit bridge proxy',color='Driver lớn nhất',title='Cầu nối chênh lệch theo yếu tố tác động'),use_container_width=True)
+elif page.startswith("10."):
+    title("Quyết định TGĐ","Danh sách quyết định cần xử lý, chủ trì và thời hạn đóng việc.")
+    show_table(pf(ceo),height=520)
 
-    with tabs[16]:
-        st.subheader('Vốn lưu động & Kế hoạch thuế/nghĩa vụ')
-        wc=tab('51_Working_Capital'); tx=tab('52_Ke_hoach_Thue')
-        w1,w2=st.tabs(['Vốn lưu động','Thuế & nghĩa vụ'])
-        with w1:
-            st.dataframe(wc,use_container_width=True,hide_index=True)
-            if len(wc): st.plotly_chart(px.bar(wc,x='Mã dự án',y='Net Working Capital',title='Vốn lưu động ròng ước tính'),use_container_width=True)
-        with w2:
-            st.dataframe(tx,use_container_width=True,hide_index=True)
-            st.warning('Thuế và nghĩa vụ trong phân hệ này là kế hoạch dòng tiền quản trị; phải cập nhật theo giao dịch, hồ sơ dự án và nghĩa vụ pháp lý thực tế.')
+elif page.startswith("11."):
+    title("Hiệu suất & dự báo","Ngân sách so với thực tế, dự báo cuốn chiếu và ước tính mới nhất.")
+    t1,t2,t3=st.tabs(["Ngân sách so với thực tế","Dự báo cuốn chiếu","Ước tính mới nhất"])
+    with t1:show_table(pf(bva),height=430)
+    with t2:show_table(pf(rolling),height=430)
+    with t3:show_table(pf(latest),height=430)
 
-    with tabs[17]:
-        st.subheader('Quản trị dữ liệu – Nguồn dữ liệu chuẩn duy nhất')
-        dq=tab('54_Quan_tri_Du_lieu')
-        st.dataframe(dq,use_container_width=True,hide_index=True)
-        if len(dq):
-            bad=dq[dq['Trạng thái DQ'].astype(str)=='CẢNH BÁO']
-            if len(bad): st.warning('Miền dữ liệu cần làm sạch/khóa: '+', '.join(bad['Data domain'].astype(str)))
+elif page.startswith("12."):
+    title("Phân bổ vốn","Xếp hạng ưu tiên vốn dựa trên lợi nhuận kỳ vọng, rủi ro và nhu cầu vốn.")
+    show_table(pf(alloc),height=500)
 
-    with tabs[18]:
-        st.subheader('Nhập dữ liệu & Ánh xạ')
-        cfg=tab('56_Cau_hinh_Import'); mp=tab('57_Tu_dien_Mapping'); staging=tab('58_Staging_Import')
-        d1,d2,d3=st.tabs(['Nguồn dữ liệu','Ánh xạ','Khu vực chờ / Lô dữ liệu'])
-        with d1: st.dataframe(cfg,use_container_width=True,hide_index=True)
-        with d2: st.dataframe(mp,use_container_width=True,hide_index=True)
-        with d3:
-            st.dataframe(staging,use_container_width=True,hide_index=True)
-            if len(staging):
-                blocked=(staging['Trạng thái batch'].astype(str)=='Bị chặn').sum()
-                if blocked: st.error(f'Có {blocked} lô dữ liệu bị chặn, chưa được chuyển vào Master.')
+elif page.startswith("13."):
+    title("Bộ báo cáo HĐQT/CFO – 3–5 phút","Tóm tắt các vấn đề trọng yếu cần HĐQT/CFO quyết định và chỉ đạo trong kỳ.")
+    d=pf(latest)
+    gap=num_series(d,"Funding gap 12T (tỷ)").sum();rev=num_series(d,"LE Doanh thu FY").sum();var=num_series(d,"Variance DT vs Budget").sum();capex=num_series(d,"LE CAPEX FY").sum()
+    overdue=(close["Trạng thái"].astype(str)=="Quá hạn").sum() if "Trạng thái" in close.columns else 0;highcov=(covfc["Xác suất breach"].astype(str)=="Cao").sum() if "Xác suất breach" in covfc.columns else 0
+    ks=st.columns(6)
+    vals=[("Doanh thu ước tính",f"{rev:,.1f} tỷ","Ổn định","good"),("Chênh lệch DT",f"{var:,.1f} tỷ","Cảnh báo" if var<0 else "Tích cực","bad" if var<0 else "good"),("CAPEX ước tính",f"{capex:,.1f} tỷ","Theo dõi","warn"),("Khoảng thiếu vốn",f"{gap:,.1f} tỷ","Cảnh báo" if gap>0 else "Ổn định","bad" if gap>0 else "good"),("Khóa sổ quá hạn",str(int(overdue)),"Cần xử lý" if overdue else "Đạt","bad" if overdue else "good"),("Khoản vay rủi ro cao",str(int(highcov)),"Cần xử lý" if highcov else "Đạt","bad" if highcov else "good")]
+    for col,(lab,val,state,kind) in zip(ks,vals):
+        with col:kpi(lab,val,state,kind)
+    f1,f2,f3,f4=st.columns([1,1,1,.72]);
+    with f1:status_filter=st.selectbox("Lọc theo trạng thái",["Tất cả","CẦN HÀNH ĐỘNG","TRONG NGƯỠNG"])
+    with f2:project_filter=st.selectbox("Lọc theo dự án",["Tất cả"]+project_codes)
+    with f3:topic=st.selectbox("Lọc theo chủ đề",["Tất cả","Doanh thu","CAPEX","Nguồn vốn","Cam kết tài chính"])
+    with f4:
+        st.caption("Xuất dữ liệu")
+        st.download_button("📗 Xuất Excel",data=DEFAULT.read_bytes(),file_name="Real_Estate_Project_Master.xlsx",mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",use_container_width=True)
+    table=d.copy();
+    if status_filter!="Tất cả" and "Trạng thái LE" in table.columns:table=table[table["Trạng thái LE"].astype(str)==status_filter]
+    if project_filter!="Tất cả" and "Mã dự án" in table.columns:table=table[table["Mã dự án"].astype(str)==project_filter]
+    show_table(table,["Mã dự án","Budget DT FY","LE Doanh thu FY","Variance DT vs Budget","LE CAPEX FY","Funding gap 12T (tỷ)","Trạng thái LE","Hành động"],330)
+    st.markdown('<div class="notice">ⓘ <b>Ghi chú:</b> Ước tính mới nhất là số điều hành; Ngân sách là mốc so sánh; số Thực tế đã khóa không bị ghi đè.</div>',unsafe_allow_html=True)
+    st.markdown("#### Quyết định ưu tiên")
+    show_table(pf(ceo),["Ưu tiên","Pháp nhân/Dự án","Vấn đề","Mức độ","Khuyến nghị","Chủ trì","Hạn xử lý","Trạng thái"],260)
+    st.markdown("#### Bộ báo cáo nhanh")
+    cards=st.columns(4)
+    for c,(t,dsc) in zip(cards,[("Báo cáo HĐQT","Các vấn đề trọng yếu cần HĐQT quyết định."),("Báo cáo CFO","Tài chính, vốn, dòng tiền và cam kết tài chính."),("Báo cáo TGĐ","Tiến độ triển khai, kế hoạch hành động và KPI."),("Hướng dẫn & giải thích","Giải thích KPI, công thức và cách sử dụng.")]):
+        with c:st.markdown(f'<div class="report-card"><div class="report-title">{t}</div><div class="report-desc">{dsc}</div><div class="report-link">Xem nội dung →</div></div>',unsafe_allow_html=True)
 
-    with tabs[19]:
-        st.subheader('Đối chiếu – nguồn ↔ Master ↔ BCTC')
-        rec=tab('59_Doi_chieu_Du_lieu')
-        st.dataframe(rec,use_container_width=True,hide_index=True)
-        if len(rec):
-            bad=rec[rec['Trạng thái'].astype(str)=='LỆCH']
-            if len(bad): st.error(f'Có {len(bad)} đối chiếu bị lệch cần xử lý trước khi khóa báo cáo.')
+elif page.startswith("14."):
+    title("Kế hoạch & kiểm soát","Quản lý phiên bản, luồng phê duyệt, khóa sổ, vốn lưu động và nghĩa vụ tài chính.")
+    t1,t2,t3,t4=st.tabs(["Phiên bản & phê duyệt","Khóa sổ tháng","Vốn lưu động","Thuế & nghĩa vụ"])
+    with t1:show_table(versions,height=300);show_table(workflow,height=300)
+    with t2:show_table(close,height=480)
+    with t3:show_table(pf(wc),height=440)
+    with t4:show_table(pf(tax),height=440)
 
-    with tabs[20]:
-        st.subheader('Nhật ký thay đổi & Kiểm soát truy cập')
-        aud=tab('60_Audit_Trail'); roles=tab('61_Phan_quyen')
-        a1,a2=st.tabs(['Nhật ký thay đổi','Phân quyền / Tách biệt nhiệm vụ'])
-        with a1:
-            st.dataframe(aud,use_container_width=True,hide_index=True)
-            if len(aud):
-                pending=(aud['Trạng thái review'].astype(str)=='Chờ review').sum()
-                if pending: st.warning(f'{pending} thay đổi đang chờ review.')
-        with a2: st.dataframe(roles,use_container_width=True,hide_index=True)
-
-    with tabs[21]:
-        st.subheader('Khóa kỳ & Luồng dữ liệu')
-        lock=tab('62_Khoa_Ky'); pipe=tab('63_Data_Pipeline')
-        p1,p2=st.tabs(['Khóa kỳ','Luồng dữ liệu'])
-        with p1: st.dataframe(lock,use_container_width=True,hide_index=True)
-        with p2:
-            st.dataframe(pipe,use_container_width=True,hide_index=True)
-            if len(pipe):
-                late=(pipe['SLA status'].astype(str)=='Quá SLA').sum()
-                if late: st.error(f'Có {late} luồng dữ liệu quá SLA.')
-
-    with tabs[22]:
-        st.subheader('Sẵn sàng vận hành / Kiểm thử / Kiểm soát vận hành')
-        ready=tab('64_GoLive_Readiness'); ops=tab('65_Operational_Control')
-        g1,g2=st.tabs(['Mức sẵn sàng vận hành','Kiểm soát vận hành'])
-        with g1:
-            st.dataframe(ready,use_container_width=True,hide_index=True)
-        with g2:
-            st.dataframe(ops,use_container_width=True,hide_index=True)
-            if len(ops):
-                row=ops[ops['KPI kiểm soát'].astype(str)=='Go-Live Decision']
-                if len(row) and str(row.iloc[0]['Giá trị'])=='NO-GO':
-                    st.error('Trạng thái hiện tại: CHƯA VẬN HÀNH. Cần đóng các điều kiện trọng yếu trước khi vận hành production.')
-                elif len(row):
-                    st.success('Trạng thái hiện tại: SẴN SÀNG VẬN HÀNH.')
-
-    with tabs[23]:
-        laws=tab('12_Cap_nhat_phap_ly')
-        st.dataframe(laws,use_container_width=True,hide_index=True,column_config={'Nguồn chính thức':st.column_config.LinkColumn('Nguồn chính thức')})
-        st.warning('Các dòng “Sắp có hiệu lực/Policy watch” không được dùng như nghĩa vụ hiện hành. Hồ sơ thực tế phải rà văn bản gốc, quy định địa phương và tình trạng cụ thể của dự án.')
-
-# --------------------- PROJECT ---------------------
 else:
-    pr=portfolio[portfolio['Mã dự án'].astype(str)==selected].iloc[0]
-    a=assump[assump['Mã dự án'].astype(str)==selected].iloc[0]
-    pm=build_project_model(a,scen); pa=annualize(pm)
-    st.subheader(f"{pr['Mã dự án']} – {pr['Tên dự án']}")
-    st.caption(f"{pr['Địa phương']} | {pr['Giai đoạn']} | {pr['Loại hình']}")
-    tabs=st.tabs(['01. Tổng quan','02. Mô hình 60T','03. BCTC Việt Nam','04. Truyền dẫn pháp lý','05. Pháp lý','06. Đường găng','07. Phòng hồ sơ','08. CAPEX','09. Bán hàng','10. Nguồn vốn','11. Feasibility/M&A','12. Rủi ro & EWS','13. Việc cần làm','14. Checklist pháp lý','15. Thực tế & Ước tính mới nhất','16. Vốn lưu động & Thuế'])
-    with tabs[0]:
-        hs=health[health['Mã dự án'].astype(str)==selected]; score=safe_num(hs['Điểm sức khỏe'].iloc[0]) if len(hs) else 0
-        gap=pm['Funding gap (tỷ)'].max(); peak=pm['Dư nợ cuối kỳ (tỷ)'].max(); ni=pm['LNST (tỷ)'].sum()
-        c1,c2,c3,c4,c5=st.columns(5); c1.metric('Sức khỏe',f'{score:.0f}/100'); c2.metric('Pháp lý',f"{safe_num(pr['Tiến độ pháp lý']):.0%}"); c3.metric('Dư nợ đỉnh',f'{peak:,.0f} tỷ'); c4.metric('Khoảng thiếu vốn đỉnh',f'{gap:,.0f} tỷ'); c5.metric('LNST 60T',f'{ni:,.0f} tỷ')
-        st.warning(f"Vấn đề chính: {pr['Vấn đề chính']}")
-        if gap>0: st.error('LEGAL/FINANCE GATE: kịch bản hiện tại tạo funding gap; cần xử lý tiến độ, vốn hoặc chính sách bán hàng trước khi phê duyệt kế hoạch.')
-    with tabs[1]:
-        fig=go.Figure(); fig.add_trace(go.Scatter(x=pm['Tháng'],y=pm['Thu khách hàng (tỷ)'],name='Thu khách hàng')); fig.add_trace(go.Scatter(x=pm['Tháng'],y=pm['Chi đầu tư (tỷ)'],name='Chi đầu tư')); fig.add_trace(go.Scatter(x=pm['Tháng'],y=pm['Dư nợ cuối kỳ (tỷ)'],name='Dư nợ')); fig.update_layout(title='Dòng tiền – nợ vay 60 tháng',hovermode='x unified'); st.plotly_chart(fig,use_container_width=True)
-        st.dataframe(pm,use_container_width=True,hide_index=True)
-    with tabs[2]:
-        st.dataframe(pa,use_container_width=True,hide_index=True)
-        st.plotly_chart(px.bar(pa,x='Năm mô hình',y=['Doanh thu (tỷ)','LNST (tỷ)'],barmode='group',title='KQKD quản trị 5 năm'),use_container_width=True)
-        st.caption('Bảng cân đối quản trị được theo dõi qua tiền, dư nợ và CIP/hàng tồn kho proxy trong mô hình; không thay thế BCTC kế toán.')
-    with tabs[3]:
-        delay=safe_num(a['Chậm pháp lý cơ sở (ngày)'])+delay_add; shift=int(np.ceil(delay/30)); extra_interest=safe_num(a['Dư nợ đầu kỳ (tỷ)'])*(safe_num(a['Lãi suất vay/năm'])+rate_change)/12*shift
-        c1,c2,c3,c4=st.columns(4); c1.metric('Chậm pháp lý',f'{delay:.0f} ngày'); c2.metric('Dịch mở bán',f'{shift} tháng'); c3.metric('Lãi vay tăng proxy',f'{extra_interest:,.0f} tỷ'); c4.metric('Khoảng thiếu vốn đỉnh',f"{pm['Funding gap (tỷ)'].max():,.0f} tỷ")
-        st.markdown('**Chuỗi truyền dẫn:** Pháp lý → mở bán/ghi nhận → thu tiền → nhu cầu vay → lãi vay → LNST/funding gap.')
-    with tabs[4]: st.dataframe(tab('02_Phap_ly').query('`Mã dự án` == @selected'),use_container_width=True,hide_index=True)
-    with tabs[5]:
-        cp=tab('14_Duong_gang_PL'); cp=cp[cp['Mã dự án'].astype(str)==selected].copy();
-        for c in ['Ngày bắt đầu KH','Ngày kết thúc dự báo']: cp[c]=pd.to_datetime(cp[c],errors='coerce')
-        if len(cp):
-            fig=px.timeline(cp,x_start='Ngày bắt đầu KH',x_end='Ngày kết thúc dự báo',y='Mốc/đầu việc',color='Trạng thái',hover_data=['Mốc khóa','Ảnh hưởng khi chậm']); fig.update_yaxes(autorange='reversed'); st.plotly_chart(fig,use_container_width=True)
-        st.dataframe(cp,use_container_width=True,hide_index=True); st.error('LEGAL GATE: chỉ chuyển mốc khi đủ toàn bộ điều kiện pháp lý áp dụng, không dựa riêng vào % tiến độ.')
-    with tabs[6]: st.dataframe(tab('15_Phong_ho_so_PL').query('`Mã dự án` == @selected'),use_container_width=True,hide_index=True)
-    with tabs[7]:
-        d=tab('03_CAPEX'); d=d[d['Mã dự án'].astype(str)==selected]; st.dataframe(d,use_container_width=True,hide_index=True)
-        if len(d): st.plotly_chart(px.bar(d,x='Hạng mục',y=['Ngân sách (tỷ)','Dự báo hoàn thành'],barmode='group',title='CAPEX: ngân sách và EAC'),use_container_width=True)
-    with tabs[8]: st.dataframe(tab('04_Ban_hang').query('`Mã dự án` == @selected'),use_container_width=True,hide_index=True)
-    with tabs[9]: st.dataframe(tab('05_Nguon_von').query('`Mã dự án` == @selected'),use_container_width=True,hide_index=True)
-    with tabs[10]: st.dataframe(tab('08_Feasibility_MA').query('`Mã dự án` == @selected'),use_container_width=True,hide_index=True)
-    with tabs[11]:
-        st.dataframe(tab('06_Rui_ro').query('`Mã dự án` == @selected'),use_container_width=True,hide_index=True)
-        if len(hs): st.dataframe(hs,use_container_width=True,hide_index=True)
-    with tabs[12]: st.dataframe(tab('07_Hanh_dong').query('`Mã dự án` == @selected'),use_container_width=True,hide_index=True)
-    with tabs[13]: st.dataframe(tab('13_Checklist_phap_ly').query('`Mã dự án` == @selected'),use_container_width=True,hide_index=True)
-    with tabs[14]:
-        act=tab('41_Actual_Theo_thang'); act=act[act['Mã dự án'].astype(str)==selected] if len(act) else act
-        le=tab('50_Latest_Estimate'); le=le[le['Mã dự án'].astype(str)==selected] if len(le) else le
-        st.dataframe(le,use_container_width=True,hide_index=True)
-        if len(act):
-            st.plotly_chart(px.line(act,x='Tháng',y=['Doanh thu Actual (tỷ)','Thu tiền Actual (tỷ)','CAPEX Actual (tỷ)'],markers=True,title='Thực tế theo tháng'),use_container_width=True)
-            st.dataframe(act,use_container_width=True,hide_index=True)
-    with tabs[15]:
-        wc=tab('51_Working_Capital'); wc=wc[wc['Mã dự án'].astype(str)==selected] if len(wc) else wc
-        tx=tab('52_Ke_hoach_Thue'); tx=tx[tx['Mã dự án'].astype(str)==selected] if len(tx) else tx
-        st.dataframe(wc,use_container_width=True,hide_index=True)
-        st.dataframe(tx,use_container_width=True,hide_index=True)
-        st.caption('Kế hoạch thuế/nghĩa vụ là phân hệ quản trị dòng tiền, không thay thế việc xác định nghĩa vụ thuế/pháp lý chính thức.')
+    title("Dữ liệu & kiểm soát","Kiểm soát nhập dữ liệu, ánh xạ, đối chiếu, nhật ký, phân quyền, khóa kỳ và sẵn sàng vận hành.")
+    t1,t2,t3,t4,t5=st.tabs(["Nguồn & ánh xạ","Khu vực chờ & đối chiếu","Nhật ký & phân quyền","Khóa kỳ & luồng dữ liệu","Sẵn sàng vận hành"])
+    with t1:show_table(source_cfg,height=270);show_table(mapping,height=300)
+    with t2:show_table(staging,height=270);show_table(recon,height=270)
+    with t3:show_table(audit,height=270);show_table(roles,height=300)
+    with t4:show_table(locks,height=270);show_table(pipe,height=300)
+    with t5:show_table(ready,height=340);show_table(ops,height=260)
