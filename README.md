@@ -1,22 +1,21 @@
 # Trung tâm điều hành danh mục, phát triển & đầu tư dự án bất động sản
 
-Nền tảng Streamlit quản trị danh mục dự án bất động sản dành cho doanh nghiệp trong nước.
+Nền tảng quản trị đa dự án dành cho doanh nghiệp trong nước.
 
-Các phân hệ chính: danh mục & KPI, bản đồ dự án, tiến độ/pháp lý, BCTC hợp nhất, loại trừ nội bộ, thác nguồn vốn, dòng tiền 60 tháng, sức khỏe & cảnh báo sớm, quyết định TGĐ, hiệu suất & dự báo, phân bổ vốn, báo cáo HĐQT/CFO, kế hoạch/khóa sổ và kiểm soát dữ liệu.
-
-## Tệp chính
-- `app.py`: ứng dụng Streamlit.
-- `Real_Estate_Project_Master.xlsx`: Master Excel đã Việt hóa và giữ đầy đủ công thức/model.
-- `.streamlit/config.toml`: giao diện tối theo phong cách trung tâm điều hành.
-- `requirements.txt`: thư viện cần thiết.
+## Thành phần chính
+- Danh mục dự án, KPI, bản đồ danh mục và tiến độ tổng thể.
+- BCTC hợp nhất, loại trừ nội bộ, thác nguồn vốn và dòng tiền 60 tháng.
+- Sức khỏe dự án, cảnh báo sớm và quyết định TGĐ.
+- Ngân sách so với thực tế, dự báo cuốn chiếu, ước tính mới nhất và phân bổ vốn.
+- Bộ báo cáo HĐQT/CFO.
+- Khóa sổ, vốn lưu động, thuế/nghĩa vụ.
+- Nhập dữ liệu, ánh xạ, đối chiếu, nhật ký, phân quyền, khóa kỳ và kiểm soát vận hành.
 
 ## Chạy trên máy
-```bash
-streamlit run app.py
-```
+`streamlit run app.py`
 
 ## Streamlit Community Cloud
-- Branch: `main`
 - Main file: `app.py`
+- File dữ liệu mặc định: `Real_Estate_Project_Master.xlsx`
 
-Tác giả: **Lê Hoàng Quân**.
+Các thuật ngữ chuyên môn thông dụng như CAPEX, DSCR, LTV, SPV, M&A, ERP và PMIS được giữ nguyên.
