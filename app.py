@@ -12,27 +12,21 @@ st.set_page_config(page_title="Trung tâm điều hành dự án bất động s
 # ============================= GIAO DIỆN =============================
 st.markdown(r"""
 <style>
-:root{--navy:#071523;--navy2:#0b1d2d;--panel:#0c2234;--line:#20384b;--blue:#2f80ed;--text:#edf4fb;--muted:#8fa5b8;--green:#20b26b;--amber:#e6a325;--red:#e65353}
-.block-container{padding-top:1.25rem!important;padding-bottom:2rem!important;max-width:100%!important;padding-left:1.0rem!important;padding-right:1.0rem!important}
-[data-testid="stAppViewContainer"]{background:#08111c}
-[data-testid="stHeader"]{background:rgba(8,17,28,.96);height:2.5rem}
-[data-testid="stSidebar"]{background:linear-gradient(180deg,#081927 0%,#0b2030 100%);border-right:1px solid #24394a}
-[data-testid="stSidebar"] .block-container{padding-top:.8rem!important}
-[data-testid="stSidebar"] hr{border-color:#20384b;margin:.55rem 0}
-[data-testid="stSidebar"] [role="radiogroup"] label{background:transparent;border-radius:7px;padding:.28rem .4rem;margin:.03rem 0}
-[data-testid="stSidebar"] [role="radiogroup"] label:hover{background:#102b40}
-[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked){background:#123e6a;color:white;border-left:3px solid #4b9cff}
-.topbar{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #20384b;padding:0 0 10px;margin:0 0 8px}
-.brand-title{font-size:1.08rem;font-weight:800;line-height:1.25;color:#f3f7fb;margin:0}.brand-sub{font-size:.76rem;color:#8fa5b8;margin-top:4px}.brand-author{color:#56a0ff;font-weight:700}
-.section-label{font-size:.68rem;color:#8ea3b4;text-transform:uppercase;letter-spacing:.06em;margin:.6rem 0 .25rem}
-.page-title{font-size:1.55rem;font-weight:800;color:#f5f7fa;margin:.7rem 0 .15rem}.page-sub{font-size:.82rem;color:#91a7b9;margin-bottom:.8rem}
+:root{--panel:#0c2234;--line:#20384b;--text:#edf4fb;--muted:#8fa5b8;--green:#20b26b}
+[data-testid="stHeader"]{display:none!important}[data-testid="stAppViewContainer"]{background:#08111c}
+.block-container{padding-top:.55rem!important;padding-bottom:2rem!important;max-width:100%!important;padding-left:1.15rem!important;padding-right:1.15rem!important}
+[data-testid="stSidebar"]{background:linear-gradient(180deg,#071827 0%,#0a2030 100%);border-right:1px solid #244054;min-width:270px!important;max-width:270px!important}
+[data-testid="stSidebar"]>div:first-child{padding-top:.45rem!important}[data-testid="stSidebar"] .block-container{padding:.5rem .8rem 1rem!important}
+[data-testid="stSidebar"] .stButton{margin:0 0 5px 0!important}[data-testid="stSidebar"] .stButton>button{width:100%!important;height:40px!important;min-height:40px!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;text-align:left!important;padding:0 12px!important;border-radius:6px!important;border:1px solid #284b62!important;background:#0c2a3d!important;color:#eef5fb!important;font-size:.79rem!important;font-weight:600!important;box-shadow:none!important}
+[data-testid="stSidebar"] .stButton>button:hover{background:#123b56!important;border-color:#3d6f91!important}[data-testid="stSidebar"] .stButton>button[kind="primary"]{background:#123f6b!important;border-color:#4388cf!important;box-shadow:inset 3px 0 0 #64a9f5!important}
+[data-testid="stSidebar"] details{border:1px solid #284b62!important;border-radius:7px!important;background:#0a1d2b!important}.section-label{font-size:.66rem;color:#839daf;text-transform:uppercase;letter-spacing:.075em;margin:.78rem 0 .32rem;padding-left:2px}
+.topbar{display:flex;align-items:flex-start;border-bottom:1px solid #20384b;padding:5px 0 11px;margin:0 0 8px;position:relative;z-index:3}.brand-title{font-size:1.08rem!important;font-weight:800;line-height:1.3;color:#f4f8fc!important;margin:0;opacity:1!important}.brand-sub{font-size:.76rem;color:#91a8ba;margin-top:5px}.brand-author{color:#58a6ff;font-weight:700}
+.update-box{background:#0d2b24;border:1px solid #1a5944;border-radius:7px;padding:8px 11px;color:#62d394;font-size:.72rem;line-height:1.35;margin-top:4px}.update-box b{color:#89e6b4;font-size:.78rem}
+.page-title{font-size:1.45rem;font-weight:800;color:#f5f7fa;margin:.72rem 0 .14rem}.page-sub{font-size:.81rem;color:#91a7b9;margin-bottom:.8rem}
 .kpi-card{background:linear-gradient(180deg,#0d2436 0%,#0b1d2d 100%);border:1px solid #254156;border-radius:8px;padding:12px 14px;min-height:82px}.kpi-label{font-size:.73rem;color:#9fb0c0}.kpi-value{font-size:1.22rem;font-weight:800;color:#f7fbff;margin-top:3px}.kpi-state{font-size:.68rem;margin-top:4px}.good{color:#43d17d}.warn{color:#f1b94b}.bad{color:#ff6b6b}
-div[data-testid="stMetric"]{background:linear-gradient(180deg,#0d2436,#0b1d2d);border:1px solid #254156;border-radius:8px;padding:9px 11px}div[data-testid="stMetricLabel"]{color:#9fb0c0}div[data-testid="stMetricValue"]{font-size:1.15rem}
-[data-testid="stDataFrame"]{border:1px solid #284154;border-radius:7px;overflow:hidden}.stTabs [data-baseweb="tab-list"]{gap:3px;border-bottom:1px solid #20384b}.stTabs [data-baseweb="tab"]{height:38px;padding:0 10px;font-size:.76rem;white-space:nowrap}.stTabs [aria-selected="true"]{background:#123e6a;border-radius:6px 6px 0 0;color:white}
-.notice{border:1px solid #254156;background:#0b2030;border-radius:8px;padding:10px 12px;color:#a9bac8;font-size:.78rem}
-.report-card{border:1px solid #254156;background:linear-gradient(180deg,#0c2132,#091a28);border-radius:9px;padding:13px;min-height:112px}.report-title{font-weight:800;color:#eef5fb}.report-desc{font-size:.76rem;color:#8fa5b8;margin-top:4px}.report-link{font-size:.76rem;color:#56a0ff;margin-top:9px}
-[data-testid="stFileUploader"]{background:#09131f;border-radius:8px}.stDownloadButton button,.stButton button{border-radius:6px}
-@media(max-width:900px){.block-container{padding-left:.55rem!important;padding-right:.55rem!important}.page-title{font-size:1.25rem}.brand-title{font-size:.98rem}}
+[data-testid="stDataFrame"]{border:1px solid #284154;border-radius:7px;overflow:hidden}.stTabs [data-baseweb="tab-list"]{gap:3px;border-bottom:1px solid #20384b;overflow-x:auto}.stTabs [data-baseweb="tab"]{height:38px;padding:0 11px;font-size:.76rem;white-space:nowrap}.stTabs [aria-selected="true"]{background:#123e6a;border-radius:6px 6px 0 0;color:white}
+.notice{border:1px solid #254156;background:#0b2030;border-radius:8px;padding:10px 12px;color:#a9bac8;font-size:.78rem}.report-card{border:1px solid #254156;background:linear-gradient(180deg,#0c2132,#091a28);border-radius:9px;padding:13px;min-height:112px}.report-title{font-weight:800;color:#eef5fb}.report-desc{font-size:.76rem;color:#8fa5b8;margin-top:4px}.report-link{font-size:.76rem;color:#56a0ff;margin-top:9px}
+@media(max-width:900px){[data-testid="stSidebar"]{min-width:235px!important;max-width:235px!important}.block-container{padding-left:.65rem!important;padding-right:.65rem!important}.page-title{font-size:1.22rem}.brand-title{font-size:.98rem!important}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -80,15 +74,18 @@ def filter_project(df,project):
     return df[df[c].astype(str)==project].copy() if c else df
 
 def vn_value(v):
-    mp={"Project Finance":"Tài trợ dự án","Term Loan":"Vay kỳ hạn","Acquisition Facility":"Khoản vay mua lại","Cash sweep":"Quét tiền trả nợ","Cost overrun test":"Kiểm tra vượt chi phí","Legal milestone":"Mốc pháp lý","cash upstream":"chuyển tiền về công ty mẹ","Hạn chế cash upstream":"Hạn chế chuyển tiền về công ty mẹ","grace period/bridge":"ân hạn/khoản vay cầu nối","sales velocity":"tốc độ bán hàng","cash buffer":"dự phòng tiền mặt","Execution":"Triển khai","Cost":"Chi phí","Legal":"Pháp lý","Price":"Giá bán","Timing/Other":"Tiến độ/Khác","Actual":"Thực tế","Budget":"Ngân sách","Latest Estimate":"Ước tính mới nhất","Rolling Forecast":"Dự báo cuốn chiếu","Promoted":"Đã chuyển","DQ check":"Kiểm tra chất lượng","Approval":"Phê duyệt","Treasury":"Ngân quỹ","Project Finance":"Tài trợ dự án","Term Loan":"Vay kỳ hạn","Acquisition Facility":"Khoản vay mua lại","Green":"Đạt","Amber":"Cần hoàn thiện","NO-GO":"CHƯA SẴN SÀNG","GO":"SẴN SÀNG"}
-    return mp.get(v,v)
+    if not isinstance(v,str): return v
+    reps=[("GL/BCTC","Sổ cái/BCTC"),("Sales/Collection","Bán hàng/Thu tiền"),("CAPEX/Progress","CAPEX/Tiến độ"),("Cash/Debt","Tiền/Nợ"),("Debt/Covenant","Nợ/Cam kết tài chính"),("Text","Văn bản"),("Number","Số"),("Date","Ngày"),("Boolean","Có/Không"),("Loan register","Sổ theo dõi khoản vay"),("Legal tracker","Theo dõi pháp lý"),("Bank/Treasury","Ngân hàng/Ngân quỹ"),("Revenue/Sales","Doanh thu/Bán hàng"),("AP/Accrual","Phải trả/Chi phí phải trả"),("Intercompany","Giao dịch nội bộ"),("Consolidation","Hợp nhất"),("Tax","Thuế"),("Project Finance","Tài trợ dự án"),("Term Loan","Vay kỳ hạn"),("Acquisition Facility","Khoản vay mua lại"),("Cash sweep","Quét tiền trả nợ"),("Cost overrun test","Kiểm tra vượt chi phí"),("Legal milestone","Mốc pháp lý"),("Legal Gate","Cổng pháp lý"),("upstream cash","chuyển tiền về công ty mẹ"),("cash upstream","chuyển tiền về công ty mẹ"),("facility","hợp đồng tín dụng"),("grace period","ân hạn"),("bridge","khoản vay cầu nối"),("IC loan","vay nội bộ"),("take-out","phương án hoàn trả"),("waiver","miễn trừ"),("refinance","tái tài trợ"),("cash preservation","bảo toàn tiền mặt"),("cash buffer","dự phòng tiền mặt"),("cash-in","dòng tiền vào"),("sales velocity","tốc độ bán hàng"),("milestone","mốc thực hiện"),("equity commitment","cam kết vốn chủ sở hữu"),("posting_date","ngày_hạch_toán"),("entity_code","mã_pháp_nhân"),("project_code","mã_dự_án"),("revenue_amount","doanh_thu"),("paid_capex","capex_đã_thanh_toán"),("ending_balance","số_dư_cuối_kỳ"),("outstanding","dư_nợ"),("GL_YYYYMM_ENTITY.xlsx","SO_CAI_YYYYMM_PHAPNHAN.xlsx"),("SALES_YYYYMM_PROJECT.xlsx","BAN_HANG_YYYYMM_DUAN.xlsx"),("BANK_YYYYMM_ENTITY.xlsx","NGAN_HANG_YYYYMM_PHAPNHAN.xlsx"),("LOAN_REGISTER.xlsx","SO_THEO_DOI_KHOAN_VAY.xlsx"),("LEGAL_TRACKER.xlsx","THEO_DOI_PHAP_LY.xlsx"),("Budget,Commitment,Payment,%HT","Ngân sách,Cam kết,Thanh toán,%HT"),("Debit,Credit,Balance,Ref","Ghi nợ,Ghi có,Số dư,Tham chiếu"),("Limit,Outstanding,Rate,Maturity,Covenant","Hạn mức,Dư nợ,Lãi suất,Đáo hạn,Cam kết tài chính"),("Status,Deadline,Owner,Gate","Trạng thái,Hạn xử lý,Phụ trách,Cổng pháp lý"),("Actual Master","Master số thực tế"),("Actual","Thực tế"),("Budget","Ngân sách"),("Latest Estimate","Ước tính mới nhất"),("Rolling Forecast","Dự báo cuốn chiếu"),("Forecast","Dự báo"),("reforecast","dự báo lại"),("assumption","giả định"),("Owner","Phụ trách"),("Reviewer","Người rà soát"),("Deadline","Hạn xử lý"),("Covenant","Cam kết tài chính"),("Treasury","Ngân quỹ"),("Cash","Tiền"),("Sales","Bán hàng"),("Legal","Pháp lý"),("Execution","Triển khai"),("Cost","Chi phí"),("Price","Giá bán"),("Timing/Other","Tiến độ/Khác"),("Green","Đạt"),("Amber","Cần hoàn thiện"),("NO-GO","CHƯA SẴN SÀNG"),("GO","SẴN SÀNG"),("Source","Nguồn"),("Mapping","Ánh xạ"),("Status","Trạng thái"),("Maturity","Đáo hạn"),("Outstanding","Dư nợ"),("Commitment","Cam kết"),("Payment","Thanh toán"),("Revenue","Doanh thu"),("Bank","Ngân hàng"),("41_Actual_Theo_thang","Số liệu thực tế theo tháng"),("LoanBook Aug-26","Sổ khoản vay tháng 08/2026"),("Project cash","Tiền dự án")]
+    out=v
+    for a,b in reps: out=out.replace(a,b)
+    return out
 
 def display_df(df):
     if df is None:return pd.DataFrame()
     d=df.copy()
     rename={
     "Funding gap (tỷ)":"Khoảng thiếu vốn (tỷ)","Funding gap 12T (tỷ)":"Khoảng thiếu vốn 12T (tỷ)","Budget DT FY":"Doanh thu ngân sách năm","LE Doanh thu FY":"Doanh thu ước tính mới nhất","Variance DT vs Budget":"Chênh lệch DT so ngân sách","LE CAPEX FY":"CAPEX ước tính mới nhất","LNST LE proxy":"LNST ước tính","Trạng thái LE":"Trạng thái ước tính",
-    "DSCR min":"DSCR tối thiểu","Headroom hiện tại":"Biên an toàn hiện tại","Tháng dự kiến breach":"Thời gian dự kiến vi phạm","Xác suất breach":"Rủi ro vi phạm","Covenant khác":"Cam kết tài chính khác","Headroom (tỷ)":"Biên hạn mức (tỷ)","Owner":"Phụ trách","Reviewer":"Người rà soát","Deadline":"Hạn xử lý","Driver lớn nhất":"Yếu tố tác động lớn nhất","Net Working Capital":"Vốn lưu động ròng","Data domain":"Miền dữ liệu","DQ Score":"Điểm chất lượng dữ liệu","SLA status":"Trạng thái SLA","Latest batch":"Lô gần nhất","Next action":"Hành động tiếp theo","Source received":"Đã nhận nguồn","Schema check":"Kiểm tra cấu trúc","Mapping check":"Kiểm tra ánh xạ","DQ check":"Kiểm tra chất lượng","Reconciliation":"Đối chiếu","Approval":"Phê duyệt","Period lock check":"Kiểm tra khóa kỳ","Promoted to Master":"Đã chuyển vào Master","UAT status":"Trạng thái kiểm thử","Sign-off":"Phê duyệt cuối","Dependency":"Phụ thuộc"}
+    "DSCR min":"DSCR tối thiểu","Headroom hiện tại":"Biên an toàn hiện tại","Tháng dự kiến breach":"Thời gian dự kiến vi phạm","Xác suất breach":"Rủi ro vi phạm","Covenant khác":"Cam kết tài chính khác","Headroom (tỷ)":"Biên hạn mức (tỷ)","Owner":"Phụ trách","Reviewer":"Người rà soát","Deadline":"Hạn xử lý","Driver lớn nhất":"Yếu tố tác động lớn nhất","Net Working Capital":"Vốn lưu động ròng","Data domain":"Miền dữ liệu","DQ Score":"Điểm chất lượng dữ liệu","SLA status":"Trạng thái SLA","Latest batch":"Lô gần nhất","Next action":"Hành động tiếp theo","Source received":"Đã nhận nguồn","Schema check":"Kiểm tra cấu trúc","Mapping check":"Kiểm tra ánh xạ","DQ check":"Kiểm tra chất lượng","Reconciliation":"Đối chiếu","Approval":"Phê duyệt","Period lock check":"Kiểm tra khóa kỳ","Promoted to Master":"Đã chuyển vào Master","UAT status":"Trạng thái kiểm thử","Sign-off":"Phê duyệt cuối","Dependency":"Phụ thuộc","Transform":"Quy tắc chuyển đổi","Validation":"Kiểm tra hợp lệ","Record key":"Khóa bản ghi","Batch ID":"Mã lô","Pipeline ID":"Mã luồng","Audit ID":"Mã nhật ký","Timestamp":"Thời điểm","Actual status":"Trạng thái số thực tế","Data owner":"Chủ dữ liệu","Business owner":"Chủ nghiệp vụ","Cut-off/Lock rule":"Quy tắc chốt/khóa"}
     d=d.rename(columns=rename)
     for c in d.select_dtypes(include="object").columns:d[c]=d[c].map(vn_value)
     return d
@@ -108,7 +105,8 @@ def title(text,sub=""):
     st.markdown(f'<div class="page-title">{text}</div><div class="page-sub">{sub}</div>',unsafe_allow_html=True)
 
 # Sidebar input
-upload=st.sidebar.file_uploader("Tải file Master Excel",type=["xlsx"])
+with st.sidebar.expander("📁 Dữ liệu Master",expanded=False):
+    upload=st.file_uploader("Tải file Master Excel",type=["xlsx"],label_visibility="collapsed")
 source=upload if upload else DEFAULT
 try:book=load_book(source)
 except Exception as e:
@@ -253,14 +251,14 @@ def all_models(scen=None):
 if "page" not in st.session_state: st.session_state.page="01. Tổng quan danh mục"
 def nav_group(group,items):
     st.sidebar.markdown(f'<div class="section-label">{group}</div>',unsafe_allow_html=True)
-    for label in items:
+    for icon,label in items:
         active=st.session_state.page==label
-        if st.sidebar.button(("▌ " if active else "   ")+label,key="nav_"+label,use_container_width=True,type="primary" if active else "secondary"):
+        if st.sidebar.button(f"{icon}  {label}",key="nav_"+label,use_container_width=True,type="primary" if active else "secondary"):
             st.session_state.page=label; st.rerun()
-nav_group("Quản trị & chiến lược",["01. Tổng quan danh mục","02. Bảng điều khiển KPI","03. Bản đồ danh mục","04. Tiến độ tổng thể"])
-nav_group("Tài chính & vận hành",["05. BCTC hợp nhất","06. Loại trừ nội bộ","07. Thác nguồn vốn","08. Dòng tiền 60T & sức chịu đựng","09. Sức khỏe & cảnh báo sớm","10. Quyết định TGĐ"])
-nav_group("Hiệu suất & dự báo",["11. Hiệu suất & dự báo","12. Phân bổ vốn","13. Bộ báo cáo HĐQT/CFO"])
-nav_group("Kế hoạch & kiểm soát",["14. Kế hoạch & kiểm soát","15. Dữ liệu & kiểm soát"])
+nav_group("Quản trị & chiến lược",[("◫","01. Tổng quan danh mục"),("◉","02. Bảng điều khiển KPI"),("⌖","03. Bản đồ danh mục"),("◷","04. Tiến độ tổng thể")])
+nav_group("Tài chính & vận hành",[("▤","05. BCTC hợp nhất"),("▥","06. Loại trừ nội bộ"),("⌁","07. Thác nguồn vốn"),("≈","08. Dòng tiền 60T & sức chịu đựng"),("⌁","09. Sức khỏe & cảnh báo sớm"),("◎","10. Quyết định TGĐ")])
+nav_group("Hiệu suất & dự báo",[("⌁","11. Hiệu suất & dự báo"),("▰","12. Phân bổ vốn"),("▣","13. Bộ báo cáo HĐQT/CFO")])
+nav_group("Kế hoạch & kiểm soát",[("☷","14. Kế hoạch & kiểm soát"),("⚙","15. Dữ liệu & kiểm soát")])
 page=st.session_state.page
 st.sidebar.markdown('<div class="section-label">Kịch bản điều hành</div>',unsafe_allow_html=True)
 with st.sidebar.expander("Điều chỉnh giả định",expanded=False):
@@ -277,14 +275,15 @@ st.sidebar.markdown('---')
 st.sidebar.markdown('<div class="report-card"><div class="report-title">Hướng dẫn sử dụng</div><div class="report-desc">Chọn trang điều hành, chọn dự án ở đầu màn hình và tập trung xử lý các ngoại lệ màu vàng/đỏ.</div><div class="report-link">ⓘ Số thực tế đã khóa không bị dự báo ghi đè.</div></div>',unsafe_allow_html=True)
 
 # Header + bộ lọc dự án
-left,right=st.columns([4.8,1.65])
+left,right=st.columns([5.1,1.5],vertical_alignment="top")
 with left:
     st.markdown('<div class="topbar"><div><div class="brand-title">🏙️ Trung tâm điều hành danh mục, phát triển & đầu tư dự án bất động sản</div><div class="brand-sub">Nền tảng quản trị đa dự án dành cho doanh nghiệp trong nước &nbsp; | &nbsp; Tác giả: <span class="brand-author">Lê Hoàng Quân</span></div></div></div>',unsafe_allow_html=True)
 with right:
+    st.caption("Chọn dự án")
     choices=["Tất cả dự án"]+project_codes
     selected=st.selectbox("Chọn dự án",choices,label_visibility="collapsed")
     now=datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d/%m/%Y %H:%M")
-    st.caption(f"🕒 Cập nhật gần nhất: {now}")
+    st.markdown(f'<div class="update-box">◷ Cập nhật gần nhất<br><b>{now}</b></div>',unsafe_allow_html=True)
 
 # Data tables
 entities=tab("29_Danh_muc_phap_nhan");treasury=tab("32_Treasury_Cash_Pool");debtbook=tab("33_No_vay_Covenant")
